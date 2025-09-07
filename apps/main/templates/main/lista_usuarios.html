@@ -1,0 +1,49 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Lista de Usuarios - SocialNetwork{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Lista de Usuarios</h2>
+        <p class="text-muted">Total de usuarios: {{ usuarios|length }}</p>
+        
+        {% if usuarios %}
+            <div class="row">
+                {% for usuario in usuarios %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ usuario.username }}</h5>
+                                {% if usuario.perfil %}
+                                    <p class="card-text">
+                                        <strong>Nombre:</strong> {{ usuario.perfil.nombre|default:"No especificado" }}<br>
+                                        <strong>Carrera:</strong> 
+                                        {% if usuario.perfil.carrera %}
+                                            {{ usuario.perfil.carrera.nombre }} ({{ usuario.perfil.carrera.acronmico }})
+                                        {% else %}
+                                            No asignada
+                                        {% endif %}
+                                    </p>
+                                    <small class="text-muted">
+                                        Registrado: {{ usuario.perfil.creation_date|date:"d/m/Y H:i" }}
+                                    </small>
+                                {% else %}
+                                    <p class="card-text text-muted">Perfil no configurado</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4>No hay usuarios registrados</h4>
+                <p>Aún no hay usuarios en el sistema.</p>
+            </div>
+        {% endif %}
+        
+        <a href="{% url 'main:inicio' %}" class="btn btn-secondary mt-3">Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

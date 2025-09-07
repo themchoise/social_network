@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Inicio - SocialNetwork{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">¡Bienvenido a SocialNetwork!</h1>
+            <p class="lead">Una red social para estudiantes del instituto.</p>
+            <hr class="my-4">
+            <p>Explora las diferentes secciones:</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'main:lista_usuarios' %}" role="button">Ver Usuarios</a>
+            <a class="btn btn-success btn-lg ms-2" href="{% url 'main:lista_carreras' %}" role="button">Ver Carreras</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
