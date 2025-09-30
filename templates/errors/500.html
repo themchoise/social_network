@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Error interno - Red Social IFTS{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 text-center">
+        <div>
+            <div class="mx-auto h-24 w-24 text-red-600">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            </div>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                ¡Ups! Algo salió mal
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Estamos experimentando dificultades técnicas. Nuestro equipo ya fue notificado.
+            </p>
+        </div>
+        
+        <div class="mt-8 space-y-6">
+            <div class="rounded-md bg-yellow-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            Error temporal
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>Este error ha sido registrado automáticamente. Intenta refrescar la página o volver más tarde.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="location.reload()" 
+                        class="btn-primary inline-flex items-center justify-center">
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refrescar página
+                </button>
+                
+                <a href="/" 
+                   class="btn-secondary inline-flex items-center justify-center">
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    Ir al inicio
+                </a>
+            </div>
+        </div>
+        
+        <!-- Información de contacto para soporte -->
+        <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">¿Necesitas ayuda inmediata?</h3>
+            <p class="text-sm text-gray-600 mb-3">
+                Si el problema persiste, no dudes en contactar a nuestro equipo de soporte.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-2 text-sm">
+                <a href="mailto:soporte@ifts.edu.ar" 
+                   class="text-primary-600 hover:text-primary-800 flex items-center justify-center">
+                    <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    soporte@ifts.edu.ar
+                </a>
+                <span class="text-primary-600 flex items-center justify-center">
+                    <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                    (011) 4000-1234
+                </span>
+            </div>
+        </div>
+        
+        <!-- Error ID para soporte técnico -->
+        <div class="text-xs text-gray-400">
+            ID de error: {{ error_id|default:"ERR-500-"|add:request.session.session_key|slice:":8"|upper }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh después de 60 segundos
+setTimeout(function() {
+    if (confirm('¿Quieres intentar refrescar la página automáticamente?')) {
+        location.reload();
+    }
+}, 60000);
+</script>
+{% endblock %}

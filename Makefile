@@ -1,7 +1,7 @@
 PYTHON = C:/WWW/IFTS/backend/api/.venv/Scripts/python.exe
 MANAGE = $(PYTHON) manage.py
 
-.PHONY: help runserver migrate makemigrations createsuperuser shell install test clean
+.PHONY: help runserver migrate makemigrations createsuperuser shell install test clean setup-tailwind build-css
 
 help:
 	@echo "Comandos disponibles:"
@@ -10,7 +10,10 @@ help:
 	@echo "  makemigrations  - Crear nuevas migraciones"
 	@echo "  createsuperuser - Crear un superusuario"
 	@echo "  shell           - Abrir shell de Django"
-	@echo "  install         - Instalar dependencias"
+	@echo "  install         - Instalar dependencias Python"
+	@echo "  setup-tailwind  - Configurar Tailwind CSS"
+	@echo "  build-css       - Compilar CSS de Tailwind"
+	@echo "  build-css-watch - Compilar CSS y vigilar cambios"
 	@echo "  test            - Ejecutar tests"
 	@echo "  clean           - Limpiar archivos temporales"
 	@echo "  setup           - Configuracion inicial completa"
@@ -37,9 +40,24 @@ shell:
 	$(MANAGE) shell
 
 install:
-	@echo "Instalando dependencias..."
+	@echo "Instalando dependencias Python..."
 	$(PYTHON) -m pip install --upgrade pip
 	@if exist requirements.txt $(PYTHON) -m pip install -r requirements.txt
+
+setup-tailwind:
+	@echo "Configurando Tailwind CSS..."
+	@if not exist node_modules npm install
+	@echo "Tailwind CSS configurado! Ejecuta 'make build-css' para compilar."
+
+build-css:
+	@echo "Compilando Tailwind CSS..."
+	@if exist node_modules/tailwindcss npx tailwindcss -i ./static/css/input.css -o ./static/css/output.css
+	@if not exist node_modules/tailwindcss echo "Ejecuta 'make setup-tailwind' primero"
+
+build-css-watch:
+	@echo "Compilando CSS y vigilando cambios..."
+	@if exist node_modules/tailwindcss npx tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch
+	@if not exist node_modules/tailwindcss echo "Ejecuta 'make setup-tailwind' primero"
 
 test:
 	@echo "Ejecutando tests..."
@@ -51,7 +69,7 @@ clean:
 	@for /d /r . %%d in (__pycache__) do @if exist "%%d" rd /s /q "%%d"
 	@for /d /r . %%d in (*.egg-info) do @if exist "%%d" rd /s /q "%%d"
 
-setup: makemigrations migrate createsuperuser
+setup: makemigrations migrate setup-tailwind build-css createsuperuser
 	@echo "Configuracion inicial completada!"
 	@echo "Ahora puedes ejecutar: make runserver"
 
@@ -65,7 +83,7 @@ resetdb:
 	$(MAKE) migrate
 	@echo "Base de datos reseteada!"
 
-dev-setup: install makemigrations migrate
+dev-setup: install setup-tailwind makemigrations migrate build-css
 	@echo "Configuracion de desarrollo completada!"
 
 freeze:

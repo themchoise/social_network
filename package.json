@@ -1,0 +1,22 @@
+{
+    "name": "social-network-ifts",
+    "version": "1.0.0",
+    "description": "Red Social Institucional IFTS",
+    "main": "index.js",
+    "scripts": {
+        "build-css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
+        "build-css-prod": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify"
+    },
+    "keywords": [
+        "django",
+        "tailwindcss",
+        "social-network"
+    ],
+    "author": "IFTS",
+    "license": "MIT",
+    "devDependencies": {
+        "tailwindcss": "^3.3.0",
+        "@tailwindcss/forms": "^0.5.6",
+        "@tailwindcss/typography": "^0.5.10"
+    }
+}

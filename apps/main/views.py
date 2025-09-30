@@ -1,10 +1,25 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
+from django.conf import settings
+import django
 from apps.user.models import User
 from apps.career.models import Career
 
 def inicio(request):
-    return render(request, 'main/inicio.html')
+    return render(request, 'timeline.html')
+
+def timeline(request):
+    return render(request, 'timeline.html')
+
+def help_view(request):
+    """
+    Vista de ayuda que muestra información útil para los usuarios
+    """
+    context = {
+        'debug': settings.DEBUG,
+        'django_version': django.get_version(),
+    }
+    return render(request, 'help.html', context)
 
 def lista_usuarios(request):
     usuarios = User.objects.select_related('career').all()
