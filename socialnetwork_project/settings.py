@@ -16,10 +16,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'apps.usuario',
+    # Social Network Apps
+    'apps.user',
+    'apps.career',
+    'apps.subject',
     'apps.post',
-    'apps.comentario',
-    'apps.amistad',
+    'apps.comment',
+    'apps.friendship',
+    'apps.group',
+    'apps.notification',
+    'apps.achievement',
+    'apps.note',
+    'apps.like',
+    'apps.reaction',
     'apps.main',
 ]
 
@@ -83,5 +92,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom User Model
+AUTH_USER_MODEL = 'user.User'

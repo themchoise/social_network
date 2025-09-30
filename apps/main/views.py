@@ -1,20 +1,20 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from django.contrib.auth.models import User
-from apps.usuario.models import PerfilUsuario, Carrera
+from apps.user.models import User
+from apps.career.models import Career
 
 def inicio(request):
     return render(request, 'main/inicio.html')
 
 def lista_usuarios(request):
-    usuarios = User.objects.select_related('perfil', 'perfil__carrera').all()
+    usuarios = User.objects.select_related('career').all()
     context = {
         'usuarios': usuarios,
     }
     return render(request, 'main/lista_usuarios.html', context)
 
 def lista_carreras(request):
-    carreras = Carrera.objects.prefetch_related('estudiantes__usuario').all()
+    carreras = Career.objects.prefetch_related('students').all()
     context = {
         'carreras': carreras,
     }
@@ -23,7 +23,7 @@ def lista_carreras(request):
 def api_usuarios(request):
     if request.method == 'GET':
         try:
-            usuarios = User.objects.select_related('perfil').all()
+            usuarios = User.objects.select_related('career').all()
             usuarios_data = []
             
             for usuario in usuarios:
@@ -31,15 +31,12 @@ def api_usuarios(request):
                     'id': usuario.id,
                     'username': usuario.username,
                     'email': usuario.email,
-                    'perfil': None
+                    'career': usuario.career.name if usuario.career else None,
+                    'bio': usuario.bio,
+                    'total_points': usuario.total_points,
+                    'level': usuario.level,
+                    'created_at': usuario.created_at.isoformat()
                 }
-                
-                if hasattr(usuario, 'perfil'):
-                    usuario_info['perfil'] = {
-                        'nombre': usuario.perfil.nombre,
-                        'carrera': usuario.perfil.carrera.nombre if usuario.perfil.carrera else None,
-                        'creation_date': usuario.perfil.creation_date.isoformat()
-                    }
                 
                 usuarios_data.append(usuario_info)
             
