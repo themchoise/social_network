@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 2,
+  "dockerfilePath": "./Dockerfile",
+  "dockerImageName": "social-network-ifts",
+  "deployType": "source",
+  "environmentVariables": {
+    "DEBUG": "False",
+    "DJANGO_SETTINGS_MODULE": "socialnetwork_project.settings",
+    "ALLOWED_HOSTS": "*",
+    "DJANGO_SUPERUSER_USERNAME": "admin",
+    "DJANGO_SUPERUSER_EMAIL": "admin@ifts.edu.ar",
+    "DJANGO_SUPERUSER_PASSWORD": "admin123change",
+    "SECRET_KEY": "your-secret-key-here-change-in-production",
+    "DATABASE_URL": "sqlite:///app/db.sqlite3"
+  },
+  "ports": [
+    {
+      "containerPort": 8000,
+      "hostPort": 80
+    }
+  ],
+  "volumes": [
+    {
+      "containerPath": "/app/media",
+      "hostPath": "/captain/data/media"
+    },
+    {
+      "containerPath": "/app/logs",
+      "hostPath": "/captain/data/logs"
+    }
+  ]
+}
