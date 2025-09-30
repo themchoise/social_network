@@ -85,5 +85,4 @@ class LikeManager(models.Manager):
         return like, True
 
 
-# Set custom manager
 Like.objects = LikeManager()

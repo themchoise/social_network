@@ -138,5 +138,4 @@ class ReactionManager(models.Manager):
         return deleted > 0
 
 
-# Set custom manager
 Reaction.objects = ReactionManager()

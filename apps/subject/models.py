@@ -21,11 +21,10 @@ class Subject(models.Model):
         verbose_name="Subject code"
     )
     
-    career = models.ForeignKey(
+    career = models.ManyToManyField(
         'career.Career',
-        on_delete=models.CASCADE,
         related_name='subjects',
-        verbose_name="Career"
+        verbose_name="Careers"
     )
     
     semester = models.PositiveIntegerField(
@@ -67,8 +66,7 @@ class Subject(models.Model):
     class Meta:
         verbose_name = "Subject"
         verbose_name_plural = "Subjects"
-        ordering = ['career', 'semester', 'name']
-        unique_together = ['career', 'code']
+        ordering = ['semester', 'name']
         
     def __str__(self):
         return f"{self.name} ({self.code})"

@@ -5,14 +5,12 @@ from django.core.validators import MinValueValidator
 
 
 class User(AbstractUser):
-    """Extended User model with social network features"""
     
     email = models.EmailField(
         unique=True,
         verbose_name="Email address"
     )
     
-    # Profile fields
     bio = models.TextField(
         max_length=500,
         blank=True,
@@ -42,7 +40,6 @@ class User(AbstractUser):
         verbose_name="Website"
     )
     
-    # Academic information
     career = models.ForeignKey(
         'career.Career',
         on_delete=models.SET_NULL,
@@ -71,7 +68,6 @@ class User(AbstractUser):
         verbose_name="Current semester"
     )
     
-    # Gamification
     total_points = models.PositiveIntegerField(
         default=0,
         verbose_name="Total points"
@@ -87,7 +83,6 @@ class User(AbstractUser):
         verbose_name="Experience points"
     )
     
-    # Social features
     is_verified = models.BooleanField(
         default=False,
         verbose_name="Verified account"
@@ -98,7 +93,6 @@ class User(AbstractUser):
         verbose_name="Is mentor"
     )
     
-    # Privacy settings
     profile_visibility = models.CharField(
         max_length=10,
         choices=[
@@ -115,7 +109,6 @@ class User(AbstractUser):
         verbose_name="Show email publicly"
     )
     
-    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_activity = models.DateTimeField(auto_now=True)
@@ -132,20 +125,16 @@ class User(AbstractUser):
         return reverse('user:profile', kwargs={'username': self.username})
     
     def get_full_name_or_username(self):
-        """Returns full name if available, otherwise username"""
         full_name = self.get_full_name()
         return full_name if full_name else self.username
     
     def add_points(self, points):
-        """Add points and update level if necessary"""
         self.total_points += points
         self.experience_points += points
         self.update_level()
         self.save(update_fields=['total_points', 'experience_points', 'level'])
     
     def update_level(self):
-        """Update user level based on experience points"""
-        # Level calculation: every 1000 XP = 1 level
         new_level = (self.experience_points // 1000) + 1
         if new_level != self.level:
             self.level = new_level
@@ -153,22 +142,18 @@ class User(AbstractUser):
         return False
     
     def get_achievements(self):
-        """Get user's achievements"""
         return self.user_achievements.select_related('achievement')
     
     def get_friends(self):
-        """Get user's friends"""
         return User.objects.filter(
             models.Q(sent_friendships__receiver=self, sent_friendships__status='accepted') |
             models.Q(received_friendships__sender=self, received_friendships__status='accepted')
         ).distinct()
     
     def get_friend_count(self):
-        """Get count of user's friends"""
         return self.get_friends().count()
     
     def can_view_profile(self, viewer):
-        """Check if viewer can see this user's profile"""
         if self.profile_visibility == 'public':
             return True
         elif self.profile_visibility == 'private':
@@ -179,7 +164,6 @@ class User(AbstractUser):
 
 
 class UserPointsHistory(models.Model):
-    """Track points history for transparency"""
     
     POINT_SOURCES = [
         ('post', 'Created Post'),

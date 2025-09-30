@@ -11,7 +11,7 @@ from apps.user.models import User
 from apps.career.models import Career
 
 def crear_datos_ejemplo():
-    print("🚀 Creando datos de ejemplo...")
+    print("Creando datos de ejemplo...")
     
     carreras_data = [
         {
@@ -60,9 +60,9 @@ def crear_datos_ejemplo():
         )
         carreras_creadas.append(carrera)
         if created:
-            print(f"✅ Carrera creada: {carrera.name}")
+            print(f"Carrera creada: {carrera.name}")
         else:
-            print(f"ℹ️  Carrera ya existe: {carrera.name}")
+            print(f"Carrera ya existe: {carrera.name}")
     
     usuarios_data = [
         {
@@ -165,27 +165,27 @@ def crear_datos_ejemplo():
         if created:
             usuario.set_password('password123')
             usuario.save()
-            print(f"✅ Usuario creado: {usuario.username}")
+            print(f"Usuario creado: {usuario.username}")
         else:
-            print(f"ℹ️  Usuario ya existe: {usuario.username}")
+            print(f"Usuario ya existe: {usuario.username}")
     
-    print("\n📊 Resumen de datos creados:")
-    print(f"👥 Usuarios totales: {User.objects.count()}")
-    print(f"🎓 Carreras totales: {Career.objects.count()}")
+    print("\nResumen de datos creados:")
+    print(f"Usuarios totales: {User.objects.count()}")
+    print(f"Carreras totales: {Career.objects.count()}")
     
-    print("\n📚 Distribución por carrera:")
+    print("\nDistribucion por carrera:")
     for carrera in Career.objects.all():
         estudiantes_count = carrera.students.count()
         print(f"   {carrera.acronym}: {estudiantes_count} estudiantes")
     
-    print("\n🎉 ¡Datos de ejemplo creados exitosamente!")
-    print("🌐 Ahora puedes visitar:")
-    print("   - http://127.0.0.1:8000/ (Página principal)")
+    print("\nDatos de ejemplo creados exitosamente!")
+    print("Ahora puedes visitar:")
+    print("   - http://127.0.0.1:8000/ (Pagina principal)")
     print("   - http://127.0.0.1:8000/usuarios/ (Lista de usuarios)")
     print("   - http://127.0.0.1:8000/carreras/ (Lista de carreras)")
     print("   - http://127.0.0.1:8000/api/usuarios/ (API JSON)")
-    print("   - http://127.0.0.1:8000/admin/ (Panel de administración)")
-    print("      Usuario: admin | Contraseña: password123")
+    print("   - http://127.0.0.1:8000/admin/ (Panel de administracion)")
+    print("      Usuario: admin | Contrasena: password123")
 
 if __name__ == '__main__':
     crear_datos_ejemplo()
