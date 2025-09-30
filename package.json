@@ -4,6 +4,7 @@
     "description": "Red Social Institucional IFTS",
     "main": "index.js",
     "scripts": {
+        "build": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify",
         "build-css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch",
         "build-css-prod": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify"
     },
