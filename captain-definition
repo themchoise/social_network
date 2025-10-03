@@ -26,7 +26,7 @@
             "hostPath": "/captain/data/media"
         },
         {
-            "containerPath": "/app/logs", 
+            "containerPath": "/app/logs",
             "hostPath": "/captain/data/logs"
         },
         {

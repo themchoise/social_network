@@ -18,10 +18,12 @@ Este proyecto está configurado para desplegarse automáticamente en CapRover co
 ### 1. En CapRover Dashboard:
 
 1. **Crear nueva aplicación**:
+
    - Nombre: `red-social-ifts`
    - Puerto: `8000`
 
 2. **Configurar variables de entorno** (opcional):
+
    ```
    DEBUG=False
    SECRET_KEY=tu-clave-secreta-segura
@@ -36,6 +38,7 @@ Este proyecto está configurado para desplegarse automáticamente en CapRover co
 ### 2. Despliegue desde Git:
 
 1. **Conectar repositorio Git**:
+
    - URL del repositorio
    - Branch: `main` o `master`
 
@@ -48,7 +51,7 @@ Este proyecto está configurado para desplegarse automáticamente en CapRover co
 
 - **URL de la aplicación**: `https://red-social-ifts.tu-servidor.com`
 - **Panel de administración**: `/admin/`
-- **Credenciales admin**: 
+- **Credenciales admin**:
   - Email: `admin@redifts.com`
   - Password: `admin123`
 
@@ -92,6 +95,7 @@ USE_HTTPS=True
 ## 🐛 Troubleshooting
 
 ### Ver logs de la aplicación:
+
 ```bash
 # En CapRover terminal
 tail -f /captain/data/logs/django.log
@@ -100,11 +104,13 @@ tail -f /captain/data/logs/error.log
 ```
 
 ### Reiniciar la aplicación:
+
 ```bash
 # En CapRover dashboard: App Settings > Restart App
 ```
 
 ### Ejecutar comandos Django:
+
 ```bash
 # En CapRover terminal
 python manage.py shell
@@ -133,6 +139,7 @@ python manage.py collectstatic
 ## 📞 Soporte
 
 Para problemas o dudas:
+
 - Revisar logs en `/captain/data/logs/`
 - Verificar variables de entorno
 - Reiniciar la aplicación si es necesario
