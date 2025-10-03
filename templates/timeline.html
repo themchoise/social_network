@@ -1,5 +1,8 @@
-{% extends 'base.html' %} {% block title %}Timeline - Red Social IFTS{% endblock
-%} {% block breadcrumbs %}
+{% extends 'base.html' %}
+
+{% block title %}Timeline - Red Social IFTS{% endblock %}
+
+{% block breadcrumbs %}
 <nav class="flex mb-6" aria-label="Breadcrumb">
   <ol class="flex items-center space-x-4">
     <li>
@@ -36,7 +39,9 @@
     </li>
   </ol>
 </nav>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
   <!-- Columna principal (Posts) -->
   <div class="lg:col-span-3 space-y-6">
