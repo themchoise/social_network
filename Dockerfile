@@ -1,16 +1,4 @@
-# Multi-stage Docker build para Red Social IFTS
-FROM node:20-alpine AS node-builder
-
-# Instalar dependencias Node.js y compilar CSS
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY static/ ./static/
-COPY tailwind.config.js ./
-RUN npm run build
-
-# Stage principal con Python
+# Dockerfile optimizado para Red Social IFTS en CapRover
 FROM python:3.11-slim
 
 # Variables de entorno para producción
@@ -35,9 +23,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código fuente
 COPY . .
-
-# Copiar CSS compilado desde el stage anterior
-COPY --from=node-builder /app/static/css/output.css ./static/css/
 
 # Crear directorios necesarios
 RUN mkdir -p logs media staticfiles
