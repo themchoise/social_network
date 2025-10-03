@@ -1,17 +1,18 @@
 {
     "schemaVersion": 2,
     "dockerfilePath": "./Dockerfile",
-    "dockerImageName": "social-network-ifts",
+    "dockerImageName": "red-social-ifts",
     "deployType": "source",
     "environmentVariables": {
         "DEBUG": "False",
-        "DJANGO_SETTINGS_MODULE": "socialnetwork_project.settings",
+        "DJANGO_SETTINGS_MODULE": "socialnetwork_project.production_settings",
         "ALLOWED_HOSTS": "*",
         "DJANGO_SUPERUSER_USERNAME": "admin",
-        "DJANGO_SUPERUSER_EMAIL": "admin@ifts.edu.ar",
-        "DJANGO_SUPERUSER_PASSWORD": "admin123change",
-        "SECRET_KEY": "your-secret-key-here-change-in-production",
-        "DATABASE_URL": "sqlite:///app/db.sqlite3"
+        "DJANGO_SUPERUSER_EMAIL": "admin@redifts.com",
+        "DJANGO_SUPERUSER_PASSWORD": "admin123",
+        "SECRET_KEY": "django-insecure-caprover-key-CHANGE-IN-PRODUCTION",
+        "DATABASE_URL": "sqlite:///app/db.sqlite3",
+        "USE_HTTPS": "False"
     },
     "ports": [
         {
@@ -25,8 +26,12 @@
             "hostPath": "/captain/data/media"
         },
         {
-            "containerPath": "/app/logs",
+            "containerPath": "/app/logs", 
             "hostPath": "/captain/data/logs"
+        },
+        {
+            "containerPath": "/app/staticfiles",
+            "hostPath": "/captain/data/staticfiles"
         }
     ]
 }
