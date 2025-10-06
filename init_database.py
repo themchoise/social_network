@@ -23,28 +23,13 @@ def init_database():
     print("⚡ Aplicando migraciones...")
     execute_from_command_line(['manage.py', 'migrate'])
     
-    # 3. Crear superusuario si no existe
-    User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
-        print("👤 Creando superusuario admin...")
-        User.objects.create_superuser(
-            username='admin',
-            email='admin@redifts.com',
-            password='admin123',
-            first_name='Administrator',
-            last_name='System'
-        )
-        print("✅ Superusuario creado: admin/admin123")
+    # 3. Creación de superusuario: siempre manual
+    print("ℹ️ La creación automática de superusuario ha sido eliminada. \n"
+          "   Para crear un superusuario manualmente, ejecute: python manage.py createsuperuser")
     
-    # 4. Crear datos de ejemplo
-    print("📊 Creando datos de ejemplo...")
-    import subprocess
-    result = subprocess.run([sys.executable, 'crear_datos_ejemplo.py'], 
-                          capture_output=True, text=True, cwd='/app')
-    if result.returncode == 0:
-        print("✅ Datos de ejemplo creados exitosamente")
-    else:
-        print(f"⚠️ Error creando datos: {result.stderr}")
+    # 4. Carga de datos de ejemplo: siempre manual
+    print("La carga automática de datos de ejemplo está deshabilitada.")
+    print("Para cargar datos de ejemplo manualmente ejecute: python crear_datos_ejemplo.py")
     
     # 5. Recopilar archivos estáticos
     print("📦 Recopilando archivos estáticos...")

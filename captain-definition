@@ -9,9 +9,9 @@
         "ALLOWED_HOSTS": "*",
         "DJANGO_SUPERUSER_USERNAME": "admin",
         "DJANGO_SUPERUSER_EMAIL": "admin@redifts.com",
-        "DJANGO_SUPERUSER_PASSWORD": "admin123",
-        "SECRET_KEY": "django-insecure-caprover-key-CHANGE-IN-PRODUCTION",
-        "DATABASE_URL": "sqlite:///app/db.sqlite3",
+        "DJANGO_SUPERUSER_PASSWORD": "<SET_IN_CAPROVER_PANEL>",
+        "SECRET_KEY": "<SET_A_STRONG_SECRET_IN_CAPROVER_PANEL>",
+        "DATABASE_URL": "<postgres://USER:PASS@HOST:PORT/DBNAME>",
         "USE_HTTPS": "False"
     },
     "ports": [

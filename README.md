@@ -594,13 +594,17 @@ npm run build
 python manage.py migrate
 ```
 
-7. **Crear superusuario**
+7. **Crear superusuario (MANUAL)**
+
+IMPORTANTE: La creación automática de superusuario está deshabilitada. Cree el superusuario manualmente en el entorno que corresponda con:
 
 ```bash
 python manage.py createsuperuser
 ```
 
-8. **Cargar datos de ejemplo**
+8. **Cargar datos de ejemplo (MANUAL)**
+
+La carga de datos de ejemplo también es manual. Para insertar datos de ejemplo ejecute:
 
 ```bash
 python crear_datos_ejemplo.py
@@ -630,9 +634,8 @@ cd social-network-ifts
 ```bash
 DEBUG=False
 SECRET_KEY=tu-clave-secreta-aqui
-DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_EMAIL=admin@ifts.edu.ar
-DJANGO_SUPERUSER_PASSWORD=password-seguro
+# Nota: las variables DJANGO_SUPERUSER_* no se usan para crear automaticamente el superusuario.
+# Cree el superusuario manualmente con `python manage.py createsuperuser` una vez desplegado.
 ```
 
 3. **Deployment automático**

@@ -29,10 +29,15 @@ ALLOWED_HOSTS=*
 # Seguridad (CAMBIAR EN PRODUCCIÓN)
 SECRET_KEY=tu-clave-secreta-super-segura-aqui-cambiar-en-produccion
 
-# Superusuario inicial
-DJANGO_SUPERUSER_USERNAME=admin
-DJANGO_SUPERUSER_EMAIL=admin@ifts.edu.ar
-DJANGO_SUPERUSER_PASSWORD=cambiar-en-produccion
+# Superusuario inicial (MANUAL)
+# Nota: la creación automática de superusuario está deshabilitada.
+# Cree el superusuario manualmente después del despliegue ejecutando:
+#
+#   python manage.py createsuperuser
+#
+# Si necesita cargar datos de ejemplo, ejecute manualmente:
+#
+#   python crear_datos_ejemplo.py
 
 # Base de datos (opcional, usa PostgreSQL en producción)
 DATABASE_URL=postgres://usuario:password@postgres-host:5432/social_network
