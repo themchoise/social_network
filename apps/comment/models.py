@@ -23,7 +23,6 @@ class Comment(models.Model):
         verbose_name="Content"
     )
     
-    # Support for nested comments (replies)
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -33,14 +32,12 @@ class Comment(models.Model):
         verbose_name="Parent comment"
     )
     
-    # Media support
     image = models.ImageField(
         upload_to='comments/images/%Y/%m/',
         blank=True,
         verbose_name="Image"
     )
     
-    # Moderation
     is_edited = models.BooleanField(
         default=False,
         verbose_name="Edited"
@@ -51,7 +48,6 @@ class Comment(models.Model):
         verbose_name="Hidden"
     )
     
-    # Generic relations for likes and reactions
     likes = GenericRelation('like.Like')
     reactions = GenericRelation('reaction.Reaction')
     

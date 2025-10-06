@@ -1,19 +1,15 @@
 #!/bin/bash
 
-# Script de inicio completo para CapRover con datos de ejemplo
 set -e
 
 echo "🚀 Iniciando Red Social IFTS en CapRover..."
 
-# Esperar a que la base de datos esté disponible
 echo "⏳ Verificando conexión a la base de datos..."
 python manage.py check --database default
 
-# Ejecutar migraciones
 echo "🔄 Ejecutando migraciones de base de datos..."
 python manage.py migrate --noinput
 
-# Crear superusuario si no existe
 echo "👤 Verificando superusuario..."
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
@@ -35,7 +31,6 @@ else:
     print('ℹ️ Superusuario ya existe')
 "
 
-# Crear datos de ejemplo
 echo "📊 Creando datos de ejemplo..."
 if [ -f "crear_datos_ejemplo.py" ]; then
     python crear_datos_ejemplo.py
@@ -44,11 +39,9 @@ else
     echo "⚠️ Archivo crear_datos_ejemplo.py no encontrado"
 fi
 
-# Recopilar archivos estáticos
 echo "📦 Recopilando archivos estáticos..."
 python manage.py collectstatic --noinput --clear
 
-# Configurar permisos de directorios
 echo "📁 Configurando permisos..."
 mkdir -p media staticfiles logs
 chmod 755 media staticfiles logs
@@ -58,7 +51,6 @@ echo "🌐 Red Social IFTS lista para usar"
 echo "📧 Acceso admin: admin@redifts.com / admin123"
 echo "🔗 URL: http://tu-dominio.com/"
 
-# Iniciar servidor Gunicorn optimizado para CapRover
 echo "🌐 Iniciando servidor web..."
 exec gunicorn socialnetwork_project.wsgi:application \
     --bind 0.0.0.0:8000 \

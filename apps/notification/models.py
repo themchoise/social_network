@@ -54,7 +54,6 @@ class Notification(models.Model):
         verbose_name="Message"
     )
     
-    # Generic relation to any object
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -71,13 +70,11 @@ class Notification(models.Model):
     
     content_object = GenericForeignKey('content_type', 'object_id')
     
-    # Action URL (optional override for custom URLs)
     action_url = models.URLField(
         blank=True,
         verbose_name="Action URL"
     )
     
-    # Status
     is_read = models.BooleanField(
         default=False,
         verbose_name="Read"
@@ -88,7 +85,6 @@ class Notification(models.Model):
         verbose_name="Sent"
     )
     
-    # Priority
     priority = models.CharField(
         max_length=10,
         choices=[
@@ -101,7 +97,6 @@ class Notification(models.Model):
         verbose_name="Priority"
     )
     
-    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     read_at = models.DateTimeField(null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)

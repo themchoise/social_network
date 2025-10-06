@@ -65,7 +65,6 @@ class Group(models.Model):
         verbose_name="Privacy level"
     )
     
-    # Academic relations
     subject = models.ForeignKey(
         'subject.Subject',
         on_delete=models.SET_NULL,
@@ -84,7 +83,6 @@ class Group(models.Model):
         verbose_name="Related career"
     )
     
-    # Group settings
     max_members = models.PositiveIntegerField(
         null=True,
         blank=True,
@@ -102,7 +100,6 @@ class Group(models.Model):
         verbose_name="Require approval to join"
     )
     
-    # Media
     avatar = models.ImageField(
         upload_to='groups/avatars/%Y/%m/',
         blank=True,
@@ -115,13 +112,11 @@ class Group(models.Model):
         verbose_name="Group banner"
     )
     
-    # Rules and guidelines
     rules = models.TextField(
         blank=True,
         verbose_name="Group rules"
     )
     
-    # Metrics
     total_posts = models.PositiveIntegerField(
         default=0,
         verbose_name="Total posts"

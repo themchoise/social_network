@@ -33,7 +33,6 @@ class Reaction(models.Model):
         verbose_name="Reaction type"
     )
     
-    # Generic foreign key to react to any model
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,

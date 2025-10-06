@@ -16,7 +16,6 @@ class Like(models.Model):
         verbose_name="User"
     )
     
-    # Generic foreign key to like any model
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,

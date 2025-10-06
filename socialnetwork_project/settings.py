@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,7 +19,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Social Network Apps
     'apps.user',
     'apps.career',
     'apps.subject',
@@ -40,7 +42,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # Middleware personalizado para manejo de errores
     'socialnetwork_project.error_handlers.TemplateErrorHandlerMiddleware',
     'socialnetwork_project.error_handlers.ErrorHandlerMiddleware',
 ]
@@ -65,11 +66,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'socialnetwork_project.wsgi.application'
 
+DATABASE_URL = config('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -108,7 +112,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
 
-# Configuración de logging para manejo de errores
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

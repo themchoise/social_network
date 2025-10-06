@@ -120,7 +120,6 @@ class Follow(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     
-    # Notification settings
     notify_posts = models.BooleanField(
         default=True,
         verbose_name="Notify on posts"
@@ -141,7 +140,6 @@ class Follow(models.Model):
         return f"{self.follower.username} follows {self.followed.username}"
     
     def save(self, *args, **kwargs):
-        # Prevent self-following
         if self.follower == self.followed:
             raise ValueError("Users cannot follow themselves")
         super().save(*args, **kwargs)

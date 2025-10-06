@@ -3,7 +3,6 @@ import os
 import django
 import sys
 
-# Configurar Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'socialnetwork_project.settings')
 django.setup()
 

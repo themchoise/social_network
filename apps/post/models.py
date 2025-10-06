@@ -46,7 +46,6 @@ class Post(models.Model):
         verbose_name="Privacy level"
     )
     
-    # Media fields
     image = models.ImageField(
         upload_to='posts/images/%Y/%m/',
         blank=True,
@@ -75,7 +74,6 @@ class Post(models.Model):
         verbose_name="Link description"
     )
     
-    # Subject relation for academic posts
     subject = models.ForeignKey(
         'subject.Subject',
         on_delete=models.SET_NULL,
@@ -85,7 +83,6 @@ class Post(models.Model):
         verbose_name="Related subject"
     )
     
-    # Group relation
     group = models.ForeignKey(
         'group.Group',
         on_delete=models.CASCADE,
@@ -95,7 +92,6 @@ class Post(models.Model):
         verbose_name="Group"
     )
     
-    # Tags
     tags = models.CharField(
         max_length=500,
         blank=True,
@@ -103,13 +99,11 @@ class Post(models.Model):
         verbose_name="Tags"
     )
     
-    # Engagement metrics
     views_count = models.PositiveIntegerField(
         default=0,
         verbose_name="Views count"
     )
     
-    # Moderation
     is_pinned = models.BooleanField(
         default=False,
         verbose_name="Pinned"
@@ -125,7 +119,6 @@ class Post(models.Model):
         verbose_name="Hidden"
     )
     
-    # Generic relations for likes and reactions
     likes = GenericRelation('like.Like')
     reactions = GenericRelation('reaction.Reaction')
     

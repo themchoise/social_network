@@ -9,7 +9,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 import uuid
 
-# Configurar logger para errores
 logger = logging.getLogger('error_handler')
 
 class ErrorHandlerMiddleware(MiddlewareMixin):
@@ -21,24 +20,19 @@ class ErrorHandlerMiddleware(MiddlewareMixin):
         """
         Maneja excepciones no capturadas y las convierte en respuestas amigables
         """
-        # Generar ID único para el error
         error_id = str(uuid.uuid4())[:8].upper()
         
-        # Información del contexto para los templates
         context = {
             'error_id': error_id,
             'user': getattr(request, 'user', None),
             'request': request,
         }
         
-        # Log del error con detalles técnicos
         self._log_error(request, exception, error_id)
         
-        # En modo DEBUG, mostrar el error completo de Django
         if settings.DEBUG:
             return None  # Deja que Django maneje el error normalmente
         
-        # Manejar diferentes tipos de errores
         if isinstance(exception, Http404):
             return HttpResponseNotFound(
                 render(request, 'errors/404.html', context).content
@@ -48,7 +42,6 @@ class ErrorHandlerMiddleware(MiddlewareMixin):
                 render(request, 'errors/403.html', context).content
             )
         else:
-            # Error 500 para cualquier otra excepción
             return HttpResponseServerError(
                 render(request, 'errors/500.html', context).content
             )
@@ -58,15 +51,12 @@ class ErrorHandlerMiddleware(MiddlewareMixin):
         Registra el error con todos los detalles técnicos
         """
         try:
-            # Información de la excepción
             exc_type, exc_value, exc_traceback = sys.exc_info()
             
-            # Detalles de la request
             user_info = "Anonymous"
             if hasattr(request, 'user') and request.user.is_authenticated:
                 user_info = f"{request.user.username} (ID: {request.user.id})"
             
-            # Información del error
             error_details = {
                 'error_id': error_id,
                 'exception_type': exc_type.__name__ if exc_type else 'Unknown',
@@ -80,7 +70,6 @@ class ErrorHandlerMiddleware(MiddlewareMixin):
                 'traceback': ''.join(traceback.format_tb(exc_traceback)) if exc_traceback else 'No traceback'
             }
             
-            # Log estructurado
             logger.error(
                 f"ERROR [{error_id}] {exc_type.__name__}: {exc_value}",
                 extra=error_details,
@@ -88,7 +77,6 @@ class ErrorHandlerMiddleware(MiddlewareMixin):
             )
             
         except Exception as log_error:
-            # Si hay error al logear, al menos intentar un log básico
             logger.error(f"Error logging exception [{error_id}]: {log_error}")
     
     def _get_client_ip(self, request):
@@ -117,7 +105,6 @@ class TemplateErrorHandlerMiddleware(MiddlewareMixin):
         if isinstance(exception, (TemplateSyntaxError, TemplateDoesNotExist)):
             error_id = str(uuid.uuid4())[:8].upper()
             
-            # Log del error de template
             logger.error(
                 f"TEMPLATE ERROR [{error_id}] {type(exception).__name__}: {exception}",
                 extra={
@@ -128,11 +115,9 @@ class TemplateErrorHandlerMiddleware(MiddlewareMixin):
                 }
             )
             
-            # En desarrollo, mostrar el error de Django
             if settings.DEBUG:
                 return None
             
-            # En producción, mostrar página de error amigable
             context = {
                 'error_id': error_id,
                 'user': getattr(request, 'user', None),
@@ -171,7 +156,6 @@ def handler500(request):
         'request': request,
     }
     
-    # Log del error 500
     logger.error(f"500 ERROR [{error_id}] Server error on {request.get_full_path()}")
     
     return HttpResponseServerError(
