@@ -1,0 +1,289 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Timeline - Red
+Social{% endblock %} {% block extra_css %}
+<style>
+  .timeline-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .btn-crear-post {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 30px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .btn-crear-post:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  .post-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+  }
+
+  .post-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .post-author {
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .post-author:hover {
+    color: #667eea;
+  }
+
+  .post-time {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .post-content {
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 15px;
+  }
+
+  .post-type-badge {
+    display: inline-block;
+    background: #f0f0f0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  .post-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .post-action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    background: #f5f5f5;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    color: #666;
+  }
+
+  .post-action-btn:hover {
+    background: #e8e8e8;
+    color: #333;
+  }
+
+  .post-action-btn.liked {
+    background: #ffe0e0;
+    color: #d32f2f;
+  }
+
+  .post-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: #999;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f5f5f5;
+  }
+
+  .post-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .empty-timeline {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+
+  .empty-timeline-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="timeline-container">
+  <h1 style="margin-bottom: 20px">📱 Timeline</h1>
+
+  {% if user.is_authenticated %}
+  <a href="{% url 'post:crear' %}" class="btn-crear-post">
+    ✏️ Crear Nuevo Post
+  </a>
+  {% else %}
+  <div
+    style="
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 30px;
+    "
+  >
+    <a
+      href="{% url 'admin:login' %}"
+      style="color: #667eea; text-decoration: none; font-weight: bold"
+    >
+      Inicia sesión
+    </a>
+    para crear posts
+  </div>
+  {% endif %} {% if posts %} {% for post in posts %}
+  <div class="post-card">
+    <div class="post-header">
+      <div>
+        <a href="#" class="post-author">
+          <span>{{ post.author.get_full_name_or_username }}</span>
+        </a>
+        <div class="post-time">{{ post.created_at|timesince }} hace</div>
+      </div>
+
+      {% if user == post.author %}
+      <div style="display: flex; gap: 8px">
+        <a
+          href="{% url 'post:editar' post.id %}"
+          style="font-size: 20px; text-decoration: none; color: #999"
+          >✏️</a
+        >
+        <a
+          href="{% url 'post:eliminar' post.id %}"
+          style="font-size: 20px; text-decoration: none; color: #999"
+          >🗑️</a
+        >
+      </div>
+      {% endif %}
+    </div>
+
+    <span class="post-type-badge">📝 {{ post.get_post_type_display }}</span>
+
+    <div class="post-content">{{ post.content }}</div>
+
+    <div class="post-stats">
+      <div class="post-stat">❤️ {{ post.get_like_count }} likes</div>
+      <div class="post-stat">💬 {{ post.get_comment_count }} comentarios</div>
+      <div class="post-stat">👁️ {{ post.views_count }} vistas</div>
+    </div>
+
+    <div class="post-actions">
+      <button
+        class="post-action-btn like-btn"
+        data-post-id="{{ post.id }}"
+        onclick="toggleLike({{ post.id }})"
+      >
+        <span>❤️</span> Like
+      </button>
+      <a
+        href="{% url 'post:detalle' post.id %}"
+        class="post-action-btn"
+        style="text-decoration: none; color: #666"
+      >
+        <span>💬</span> Comentar
+      </a>
+      <a
+        href="{% url 'post:detalle' post.id %}"
+        class="post-action-btn"
+        style="text-decoration: none; color: #666"
+      >
+        <span>🔗</span> Ver Más
+      </a>
+    </div>
+  </div>
+  {% endfor %} {% else %}
+  <div class="empty-timeline">
+    <div class="empty-timeline-icon">📭</div>
+    <h3>No hay posts aún</h3>
+    <p>Sé el primero en crear un post en la red social</p>
+    {% if user.is_authenticated %}
+    <a
+      href="{% url 'post:crear' %}"
+      style="color: #667eea; text-decoration: none; font-weight: bold"
+    >
+      Crear primer post →
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script src="{% static 'js/gamification.js' %}"></script>
+<script>
+  async function toggleLike(postId) {
+    try {
+      const response = await fetch(`/post/${postId}/like/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+            .value,
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Actualizar UI
+        const btn = document.querySelector(`[data-post-id="${postId}"]`);
+        if (data.liked) {
+          btn.classList.add("liked");
+        } else {
+          btn.classList.remove("liked");
+        }
+
+        // Mostrar modal de gamificación si el autor recibió puntos
+        if (data.author_gamification) {
+          gamificationModal.show(data.author_gamification);
+        }
+
+        // Recargar para actualizar contadores
+        setTimeout(() => location.reload(), 1000);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error al dar like");
+    }
+  }
+</script>
+{% endblock %}

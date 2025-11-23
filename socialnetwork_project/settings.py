@@ -66,15 +66,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'socialnetwork_project.wsgi.application'
 
-DATABASE_URL = config('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
+# Configuración de base de datos
+DATABASE_URL = config('DATABASE_URL', default='')
 
-DATABASES = {
-    'default': dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+if DATABASE_URL:
+    # Si hay DATABASE_URL configurada (PostgreSQL)
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Por defecto usar SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -111,6 +122,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
+
+# Redirigir al login personalizado
+LOGIN_URL = 'user:login'
+LOGIN_REDIRECT_URL = 'post:timeline'
 
 LOGGING = {
     'version': 1,

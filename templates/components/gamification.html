@@ -1,0 +1,85 @@
+<!-- Gamification Modal Component -->
+<!-- Incluir esto en base.html -->
+
+<link rel="stylesheet" href="{% static 'css/gamification.css' %}" />
+<script src="{% static 'js/gamification.js' %}"></script>
+
+<!-- Component para mostrar badge de estadísticas del usuario -->
+{% if user.is_authenticated %}
+<div id="user-stats-badge" class="user-stats-badge" style="display: none">
+  <span class="user-stats-badge-icon">⭐</span>
+  <span class="user-stats-badge-value" id="user-total-points"
+    >{{ user.total_points }}</span
+  >
+  <span>Lvl {{ user.level }}</span>
+</div>
+{% endif %}
+
+<script>
+  // Script para actualizar badge de estadísticas
+  document.addEventListener("DOMContentLoaded", function () {
+    const badge = document.getElementById("user-stats-badge");
+    const pointsValue = document.getElementById("user-total-points");
+
+    if (badge) {
+      badge.style.display = "inline-flex";
+
+      // Actualizar cada 5 segundos
+      setInterval(async function () {
+        try {
+          const stats = await GamificationAPI.getUserStats();
+          if (stats && pointsValue) {
+            pointsValue.textContent = stats.total_points;
+          }
+        } catch (error) {
+          console.log("Error updating stats badge");
+        }
+      }, 5000);
+    }
+
+    // Click en badge para ver perfil/estadísticas
+    if (badge) {
+      badge.addEventListener("click", function () {
+        showUserStats();
+      });
+    }
+  });
+
+  // Función para mostrar estadísticas completas del usuario
+  async function showUserStats() {
+    try {
+      const stats = await GamificationAPI.getUserStats();
+      const achievements = await GamificationAPI.getUserAchievements();
+
+      const html = `
+                <div style="background: white; padding: 20px; border-radius: 12px; max-width: 400px;">
+                    <h3>${stats.username}</h3>
+                    <p><strong>Nivel:</strong> ${stats.level}</p>
+                    <p><strong>Puntos Totales:</strong> ${
+                      stats.total_points
+                    }</p>
+                    <p><strong>Experiencia:</strong> ${
+                      stats.experience_points
+                    } / ${(stats.level + 1) * 1000}</p>
+                    <p><strong>Posts:</strong> ${stats.total_posts}</p>
+                    <p><strong>Comentarios:</strong> ${stats.total_comments}</p>
+                    <p><strong>Logros:</strong> ${stats.total_achievements}</p>
+                    <hr>
+                    <h4>Puntos por fuente:</h4>
+                    <ul>
+                        <li>Posts: ${stats.points_by_source.post}</li>
+                        <li>Comentarios: ${stats.points_by_source.comment}</li>
+                        <li>Likes recibidos: ${
+                          stats.points_by_source.like_received
+                        }</li>
+                    </ul>
+                </div>
+            `;
+
+      // Mostrar en modal o alert
+      alert(JSON.stringify(stats, null, 2));
+    } catch (error) {
+      console.error("Error showing user stats:", error);
+    }
+  }
+</script>

@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Post - Red Social{% endblock %}
+
+{% block extra_css %}
+<style>
+    .editar-post-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #667eea;
+        text-decoration: none;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .form-card {
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+        font-size: 14px;
+    }
+    
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-group textarea {
+        min-height: 200px;
+        max-height: 400px;
+    }
+    
+    .char-count {
+        font-size: 12px;
+        color: #999;
+        margin-top: 8px;
+        text-align: right;
+    }
+    
+    .char-count.warning {
+        color: #ff9800;
+    }
+    
+    .char-count.error {
+        color: #d32f2f;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #f0f0f0;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+    
+    .btn-secondary:hover {
+        background: #e0e0e0;
+    }
+    
+    .btn-danger {
+        background: #ffebee;
+        color: #d32f2f;
+    }
+    
+    .btn-danger:hover {
+        background: #ffcccc;
+    }
+    
+    .error-message {
+        background: #ffebee;
+        color: #d32f2f;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+    }
+    
+    .error-message.show {
+        display: block;
+    }
+    
+    .success-message {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+    }
+    
+    .success-message.show {
+        display: block;
+    }
+    
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .loading.show {
+        display: block;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .help-text {
+        font-size: 13px;
+        color: #999;
+        margin-top: 6px;
+    }
+    
+    .post-info {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .post-info-item {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+    
+    .post-info-label {
+        font-weight: 600;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="editar-post-container">
+    <a href="{% url 'post:detalle' post.id %}" class="back-link">← Volver al Post</a>
+    
+    <h1 style="margin-bottom: 30px;">✏️ Editar Post</h1>
+    
+    <div class="form-card">
+        <div class="post-info">
+            <div class="post-info-item">
+                <span class="post-info-label">📅 Creado:</span>
+                {{ post.created_at|date:"d/m/Y H:i" }}
+            </div>
+            <div class="post-info-item">
+                <span class="post-info-label">✏️ Última edición:</span>
+                {% if post.updated_at %}
+                    {{ post.updated_at|date:"d/m/Y H:i" }}
+                {% else %}
+                    No editado aún
+                {% endif %}
+            </div>
+            <div class="post-info-item">
+                <span class="post-info-label">❤️ Likes:</span>
+                {{ post.get_like_count }}
+            </div>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <form id="postForm" method="POST" action="{% url 'post:editar' post.id %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="content">Contenido *</label>
+                <textarea id="content" name="content" required>{{ post.content }}</textarea>
+                <div class="char-count"><span id="charCount">{{ post.content|length }}</span> / 5000 caracteres</div>
+                <div class="help-text">Máximo 5000 caracteres</div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="post_type">Tipo de Post *</label>
+                    <select id="post_type" name="post_type" required>
+                        <option value="text" {% if post.post_type == 'text' %}selected{% endif %}>📝 Texto</option>
+                        <option value="question" {% if post.post_type == 'question' %}selected{% endif %}>❓ Pregunta</option>
+                        <option value="announcement" {% if post.post_type == 'announcement' %}selected{% endif %}>📰 Noticia</option>
+                        <option value="link" {% if post.post_type == 'link' %}selected{% endif %}>📚 Recurso</option>
+                        <option value="image" {% if post.post_type == 'image' %}selected{% endif %}>💬 Imagen</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="privacy">Privacidad *</label>
+                    <select id="privacy" name="privacy" required>
+                        <option value="public" {% if post.privacy_level == 'public' %}selected{% endif %}>🌐 Público</option>
+                        <option value="friends" {% if post.privacy_level == 'friends' %}selected{% endif %}>👥 Solo amigos</option>
+                        <option value="private" {% if post.privacy_level == 'private' %}selected{% endif %}>🔒 Privado</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'post:detalle' post.id %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Guardar Cambios</button>
+            </div>
+        </form>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px;">Guardando cambios...</p>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/gamification.js' %}"></script>
+<script>
+    const form = document.getElementById('postForm');
+    const contentTextarea = document.getElementById('content');
+    const charCountSpan = document.getElementById('charCount');
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    const loadingDiv = document.getElementById('loadingIndicator');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Actualizar contador de caracteres
+    contentTextarea.addEventListener('input', function() {
+        const count = this.value.length;
+        charCountSpan.textContent = count;
+        
+        const charCounter = document.querySelector('.char-count');
+        charCounter.classList.remove('warning', 'error');
+        
+        if (count > 4500) {
+            charCounter.classList.add('error');
+        } else if (count > 4000) {
+            charCounter.classList.add('warning');
+        }
+        
+        // Validar longitud
+        if (count > 5000) {
+            this.value = this.value.substring(0, 5000);
+            charCountSpan.textContent = 5000;
+            charCounter.classList.add('error');
+        }
+    });
+    
+    // Manejar envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Ocultar mensajes previos
+        errorDiv.classList.remove('show');
+        successDiv.classList.remove('show');
+        
+        // Validar
+        const content = contentTextarea.value.trim();
+        if (!content) {
+            showError('El contenido no puede estar vacío');
+            return;
+        }
+        
+        if (content.length < 2) {
+            showError('El contenido debe tener al menos 2 caracteres');
+            return;
+        }
+        
+        const postType = document.getElementById('post_type').value;
+        if (!postType) {
+            showError('Debes seleccionar un tipo de post');
+            return;
+        }
+        
+        // Mostrar cargando
+        loadingDiv.classList.add('show');
+        submitBtn.disabled = true;
+        
+        try {
+            const formData = new FormData(form);
+            
+            const response = await fetch('{% url "post:editar" post.id %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showSuccess('¡Cambios guardados exitosamente! 💾');
+                
+                // Redirigir después de 1 segundo
+                setTimeout(() => {
+                    window.location.href = '{% url "post:detalle" post.id %}';
+                }, 1000);
+            } else {
+                showError(data.error || 'Error al guardar los cambios');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Error de conexión al guardar los cambios');
+        } finally {
+            loadingDiv.classList.remove('show');
+            submitBtn.disabled = false;
+        }
+    });
+    
+    function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.classList.add('show');
+        window.scrollTo(0, 0);
+    }
+    
+    function showSuccess(message) {
+        successDiv.textContent = message;
+        successDiv.classList.add('show');
+    }
+</script>
+{% endblock %}

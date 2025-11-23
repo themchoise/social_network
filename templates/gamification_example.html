@@ -1,0 +1,333 @@
+<!-- Ejemplo de integración de Gamificación en Template HTML -->
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Red Social - Ejemplo Gamificación</title>
+    {% load static %}
+    <!-- CSS de Gamificación -->
+    <link rel="stylesheet" href="{% static 'css/gamification.css' %}" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+      .section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .button:hover {
+        opacity: 0.8;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+      }
+      .stat-card {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header con estadísticas del usuario -->
+      <div class="header">
+        <h1>🎮 Red Social con Gamificación</h1>
+        {% if user.is_authenticated %}
+        <div id="user-stats-badge" class="user-stats-badge">
+          <span class="user-stats-badge-icon">⭐</span>
+          <span class="user-stats-badge-value">{{ user.total_points }}</span>
+          <span>Lvl {{ user.level }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sección de Ejemplos de Puntos -->
+      <div class="section">
+        <h2>📊 Prueba el Sistema de Gamificación</h2>
+        <p>
+          Haz click en los botones para simular diferentes acciones y ver cómo
+          funciona el modal de puntos:
+        </p>
+
+        <button class="button" onclick="testPostPoints()">
+          📝 Crear Post (+10 pts)
+        </button>
+        <button class="button" onclick="testCommentPoints()">
+          💬 Crear Comentario (+5 pts)
+        </button>
+        <button class="button" onclick="testLikePoints()">
+          ❤️ Recibir Like (+2 pts)
+        </button>
+        <button class="button" onclick="testNotePoints()">
+          📌 Compartir Nota (+8 pts)
+        </button>
+        <button class="button" onclick="testCustomPoints()">
+          🎁 Bonificación Custom
+        </button>
+      </div>
+
+      <!-- Sección de Estadísticas -->
+      <div class="section">
+        <h2>📈 Mis Estadísticas</h2>
+        <div id="user-stats" class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Nivel</div>
+            <div class="stat-value" id="stat-level">{{ user.level }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Puntos Totales</div>
+            <div class="stat-value" id="stat-points">
+              {{ user.total_points }}
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Logros</div>
+            <div class="stat-value" id="stat-achievements">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Posts</div>
+            <div class="stat-value" id="stat-posts">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Comentarios</div>
+            <div class="stat-value" id="stat-comments">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Siguiente Nivel</div>
+            <div class="stat-value" id="stat-next-level">0</div>
+          </div>
+        </div>
+        <button
+          class="button"
+          onclick="refreshStats()"
+          style="margin-top: 15px; width: 100%"
+        >
+          🔄 Actualizar Estadísticas
+        </button>
+      </div>
+
+      <!-- Sección de Logros -->
+      <div class="section">
+        <h2>🏆 Mis Logros</h2>
+        <div id="achievements-list">
+          <p>Cargando logros...</p>
+        </div>
+        <button
+          class="button"
+          onclick="loadAchievements()"
+          style="margin-top: 15px; width: 100%"
+        >
+          📋 Ver Todos los Logros
+        </button>
+      </div>
+
+      <!-- Sección de Ranking -->
+      <div class="section">
+        <h2>🏅 Ranking Global</h2>
+        <div id="leaderboard">
+          <p>Cargando ranking...</p>
+        </div>
+      </div>
+
+      <!-- Historial de Puntos -->
+      <div class="section">
+        <h2>📜 Historial Reciente</h2>
+        <div id="points-history">
+          <p>Cargando historial...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script de Gamificación -->
+    <script src="{% static 'js/gamification.js' %}"></script>
+
+    <script>
+      // Funciones de prueba para simular acciones
+      async function testPostPoints() {
+        await awardPoints("post", null, "Test: Nuevo post creado");
+      }
+
+      async function testCommentPoints() {
+        await awardPoints("comment", null, "Test: Nuevo comentario");
+      }
+
+      async function testLikePoints() {
+        await awardPoints("like_received", null, "Test: Te dieron like");
+      }
+
+      async function testNotePoints() {
+        await awardPoints("note_shared", null, "Test: Nota compartida");
+      }
+
+      async function testCustomPoints() {
+        await awardPoints(
+          "admin_bonus",
+          50,
+          "¡Bonificación especial del admin!"
+        );
+      }
+
+      // Actualizar estadísticas
+      async function refreshStats() {
+        try {
+          const stats = await GamificationAPI.getUserStats();
+          document.getElementById("stat-level").textContent = stats.level;
+          document.getElementById("stat-points").textContent =
+            stats.total_points;
+          document.getElementById("stat-achievements").textContent =
+            stats.total_achievements;
+          document.getElementById("stat-posts").textContent = stats.total_posts;
+          document.getElementById("stat-comments").textContent =
+            stats.total_comments;
+          document.getElementById("stat-next-level").textContent =
+            stats.points_to_next_level;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Cargar logros
+      async function loadAchievements() {
+        try {
+          const data = await GamificationAPI.getUserAchievements();
+          let html = "";
+
+          if (data.achievements.length === 0) {
+            html = "<p>Aún no tienes logros desbloqueados</p>";
+          } else {
+            data.achievements.forEach((achievement) => {
+              html += `
+                            <div style="padding: 10px; margin: 10px 0; background: #f9f9f9; border-left: 4px solid #667eea; border-radius: 4px;">
+                                <strong>${achievement.icon} ${
+                achievement.name
+              }</strong><br>
+                                <small>${achievement.description}</small><br>
+                                <tiny style="color: #999;">Desbloqueado: ${new Date(
+                                  achievement.earned_at
+                                ).toLocaleDateString()}</tiny>
+                            </div>
+                        `;
+            });
+          }
+
+          document.getElementById("achievements-list").innerHTML = html;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Cargar ranking
+      async function loadLeaderboard() {
+        try {
+          const data = await GamificationAPI.getLeaderboard(10);
+          let html = '<table style="width: 100%; border-collapse: collapse;">';
+          html +=
+            '<tr style="border-bottom: 2px solid #ddd;"><th style="text-align: left; padding: 10px;">Rank</th><th style="text-align: left; padding: 10px;">Usuario</th><th style="text-align: right; padding: 10px;">Puntos</th><th style="text-align: center; padding: 10px;">Nivel</th></tr>';
+
+          data.leaderboard.forEach((user, index) => {
+            const medals = ["🥇", "🥈", "🥉"];
+            const medal = medals[index] || `${index + 1}.`;
+            html += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px;">${medal}</td>
+                            <td style="padding: 10px;">${user.username}</td>
+                            <td style="padding: 10px; text-align: right; font-weight: bold;">${user.total_points}</td>
+                            <td style="padding: 10px; text-align: center;">⭐ ${user.level}</td>
+                        </tr>
+                    `;
+          });
+
+          html += "</table>";
+          document.getElementById("leaderboard").innerHTML = html;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Cargar historial
+      async function loadPointsHistory() {
+        try {
+          const data = await GamificationAPI.getPointsHistory(10);
+          let html = "";
+
+          if (data.history.length === 0) {
+            html = "<p>No hay historial de puntos</p>";
+          } else {
+            data.history.forEach((record) => {
+              const sourceIcons = {
+                post: "📝",
+                comment: "💬",
+                like_received: "❤️",
+                note_shared: "📌",
+                achievement: "🏆",
+                login_streak: "🔥",
+                help_others: "🤝",
+              };
+              const icon = sourceIcons[record.source] || "⭐";
+              const date = new Date(record.created_at).toLocaleString();
+              html += `
+                            <div style="padding: 10px; margin: 10px 0; background: #f9f9f9; border-left: 4px solid #4caf50; border-radius: 4px;">
+                                <strong>${icon} +${record.points} puntos</strong><br>
+                                <small>${record.description}</small><br>
+                                <tiny style="color: #999;">${date}</tiny>
+                            </div>
+                        `;
+            });
+          }
+
+          document.getElementById("points-history").innerHTML = html;
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      // Inicialización
+      document.addEventListener("DOMContentLoaded", function () {
+        refreshStats();
+        loadAchievements();
+        loadLeaderboard();
+        loadPointsHistory();
+
+        // Actualizar cada 10 segundos
+        setInterval(refreshStats, 10000);
+      });
+    </script>
+  </body>
+</html>

@@ -4,13 +4,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 
-def redirect_to_main(request):
-    return redirect('/main/', permanent=True)
+def redirect_to_timeline(request):
+    return redirect('/post/', permanent=False)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', redirect_to_main),
-    path('', include('apps.post.urls')),
+    path('', redirect_to_timeline),
+    path('post/', include('apps.post.urls')),
     path('user/', include('apps.user.urls')),
     path('', include('apps.main.urls')),
 ]

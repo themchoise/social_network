@@ -49,6 +49,14 @@
       <!-- Menú de usuario -->
       <div class="flex items-center space-x-4">
         {% if user.is_authenticated %}
+        <!-- Botón Crear Post -->
+        <a
+          href="{% url 'post:crear' %}"
+          class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm font-medium transition"
+        >
+          ✏️ Crear Post
+        </a>
+
         <!-- Notificaciones -->
         <button class="p-2 text-gray-400 hover:text-gray-500 relative">
           <svg
@@ -126,7 +134,7 @@
               >Panel Admin</a
             >
             <a
-              href="#"
+              href="{% url 'user:logout' %}"
               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >Cerrar Sesión</a
             >
@@ -156,7 +164,7 @@
           </div>
         </div>
         {% else %}
-        <a href="/admin/" class="btn-primary">Iniciar Sesión</a>
+        <a href="{% url 'user:login' %}" class="btn-primary">Iniciar Sesión</a>
         {% endif %}
       </div>
     </div>
