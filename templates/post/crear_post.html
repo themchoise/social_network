@@ -4,15 +4,24 @@ Social{% endblock %} {% block extra_css %}
   .crear-post-container {
     max-width: 600px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 12px;
   }
 
   .form-card {
     background: white;
     border: 1px solid #eee;
     border-radius: 12px;
-    padding: 30px;
+    padding: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 640px) {
+    .crear-post-container {
+      padding: 20px;
+    }
+    .form-card {
+      padding: 30px;
+    }
   }
 
   .form-group {
@@ -74,21 +83,38 @@ Social{% endblock %} {% block extra_css %}
 
   .form-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     justify-content: flex-end;
-    margin-top: 30px;
-    padding-top: 20px;
+    margin-top: 20px;
+    padding-top: 16px;
     border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
   }
 
   .btn {
-    padding: 12px 24px;
+    padding: 10px 16px;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    flex: 1;
+    min-width: 100px;
+  }
+
+  @media (min-width: 640px) {
+    .form-actions {
+      gap: 12px;
+      margin-top: 30px;
+      padding-top: 20px;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 14px;
+      flex: 0 1 auto;
+      min-width: auto;
+    }
   }
 
   .btn-primary {

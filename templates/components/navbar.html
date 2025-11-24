@@ -12,14 +12,14 @@
             src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
             alt="IFTS Logo"
           />
-          <span class="ml-2 text-xl font-bold text-gray-900"
+          <span class="ml-2 hidden sm:inline text-lg sm:text-xl font-bold text-gray-900"
             >Red Social IFTS</span
           >
         </div>
       </div>
 
       <!-- Barra de búsqueda central -->
-      <div class="hidden md:block flex-1 max-w-xs mx-8">
+      <div class="hidden md:block flex-1 max-w-xs mx-4 lg:mx-8">
         <div class="relative">
           <div
             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -52,7 +52,7 @@
         <!-- Botón Crear Post -->
         <a
           href="{% url 'post:crear' %}"
-          class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm font-medium transition"
+          class="hidden sm:inline-block px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-xs sm:text-sm font-medium transition"
         >
           ✏️ Crear Post
         </a>

@@ -76,8 +76,8 @@
                 </div>
             `;
 
-      // Mostrar en modal o alert
-      alert(JSON.stringify(stats, null, 2));
+      // Mostrar en modal o toast
+      toast.info("Estadísticas cargadas");
     } catch (error) {
       console.error("Error showing user stats:", error);
     }

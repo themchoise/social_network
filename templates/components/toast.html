@@ -1,0 +1,67 @@
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-3"></div>
+
+<script>
+  class Toast {
+    constructor() {
+      this.container = document.getElementById('toast-container');
+    }
+
+    show(message, type = 'info', duration = 3000) {
+      const id = `toast-${Date.now()}`;
+      const bgColor = {
+        'success': 'bg-green-500',
+        'error': 'bg-red-500',
+        'info': 'bg-blue-500',
+        'warning': 'bg-yellow-500'
+      }[type] || 'bg-blue-500';
+
+      const toast = document.createElement('div');
+      toast.id = id;
+      toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg animate-slide-in transform transition-all duration-300`;
+      toast.textContent = message;
+
+      this.container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'transform', 'translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+
+    success(message, duration = 3000) {
+      this.show(message, 'success', duration);
+    }
+
+    error(message, duration = 4000) {
+      this.show(message, 'error', duration);
+    }
+
+    info(message, duration = 3000) {
+      this.show(message, 'info', duration);
+    }
+
+    warning(message, duration = 3000) {
+      this.show(message, 'warning', duration);
+    }
+  }
+
+  const toast = new Toast();
+</script>
+
+<style>
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-in-out;
+  }
+</style>

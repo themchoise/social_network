@@ -5,7 +5,7 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
   .post-detail-container {
     max-width: 700px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 12px;
   }
 
   .back-link {
@@ -14,8 +14,9 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
     gap: 8px;
     color: #667eea;
     text-decoration: none;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     font-weight: 500;
+    font-size: 14px;
   }
 
   .back-link:hover {
@@ -26,8 +27,24 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
     background: white;
     border: 1px solid #eee;
     border-radius: 12px;
-    padding: 30px;
+    padding: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  @media (min-width: 640px) {
+    .post-detail-container {
+      padding: 20px;
+    }
+    .post-detail-card {
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .back-link {
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+  }
     margin-bottom: 30px;
   }
 
@@ -273,6 +290,7 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
   }
 </style>
 {% endblock %} {% block content %}
+{% csrf_token %}
 <div class="post-detail-container">
   <a href="{% url 'post:timeline' %}" class="back-link">← Volver al Timeline</a>
 
@@ -434,7 +452,7 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
 
       const content = document.getElementById("comment_content").value.trim();
       if (!content) {
-        alert("El comentario no puede estar vacío");
+        toast.warning("El comentario no puede estar vacío");
         return;
       }
 
@@ -452,10 +470,11 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
           document.getElementById("comment_content").value = "";
           setTimeout(() => location.reload(), 500);
         } else {
-          alert("Error al publicar el comentario");
+          toast.error("Error al publicar el comentario");
         }
       } catch (error) {
         console.error("Error:", error);
+        toast.error("Error de conexión");
       }
     });
 </script>

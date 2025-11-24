@@ -4,7 +4,7 @@ Social{% endblock %} {% block extra_css %}
   .delete-container {
     max-width: 500px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 12px;
     min-height: calc(100vh - 100px);
     display: flex;
     align-items: center;
@@ -15,28 +15,49 @@ Social{% endblock %} {% block extra_css %}
     background: white;
     border: 2px solid #ffebee;
     border-radius: 12px;
-    padding: 40px 30px;
+    padding: 24px 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     text-align: center;
   }
 
   .delete-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
+    font-size: 48px;
+    margin-bottom: 16px;
   }
 
   .delete-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: #d32f2f;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
 
   .delete-message {
     color: #666;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.6;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+  }
+
+  @media (min-width: 640px) {
+    .delete-container {
+      padding: 20px;
+    }
+    .delete-card {
+      padding: 40px 30px;
+    }
+    .delete-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    .delete-title {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    .delete-message {
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
   }
 
   .post-preview {
@@ -203,17 +224,18 @@ Social{% endblock %} {% block extra_css %}
         const data = await response.json();
 
         if (data.success) {
+          toast.success("Post eliminado exitosamente");
           setTimeout(() => {
             window.location.href = '{% url "post:timeline" %}';
           }, 1500);
         } else {
-          alert(data.error || "Error al eliminar el post");
+          toast.error(data.error || "Error al eliminar el post");
           document.querySelector(".action-buttons").style.display = "flex";
           document.getElementById("loadingIndicator").style.display = "none";
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("Error de conexión");
+        toast.error("Error de conexión");
         document.querySelector(".action-buttons").style.display = "flex";
         document.getElementById("loadingIndicator").style.display = "none";
       }

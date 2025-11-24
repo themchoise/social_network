@@ -4,7 +4,13 @@ Social{% endblock %} {% block extra_css %}
   .timeline-container {
     max-width: 600px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .timeline-container {
+      padding: 20px;
+    }
   }
 
   .btn-crear-post {
@@ -86,26 +92,39 @@ Social{% endblock %} {% block extra_css %}
 
   .post-actions {
     display: flex;
-    gap: 15px;
+    gap: 8px;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
   }
 
   .post-action-btn {
     flex: 1;
-    padding: 8px 12px;
+    min-width: 80px;
+    padding: 8px 8px;
     border: none;
     background: #f5f5f5;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     transition: all 0.2s;
     color: #666;
+  }
+
+  @media (max-width: 640px) {
+    .post-action-btn {
+      padding: 6px 6px;
+      font-size: 11px;
+      min-width: 70px;
+    }
+    .post-action-btn span {
+      display: none;
+    }
   }
 
   .post-action-btn:hover {
@@ -146,6 +165,7 @@ Social{% endblock %} {% block extra_css %}
   }
 </style>
 {% endblock %} {% block content %}
+{% csrf_token %}
 <div class="timeline-container">
   <h1 style="margin-bottom: 20px">📱 Timeline</h1>
 
@@ -282,7 +302,7 @@ Social{% endblock %} {% block extra_css %}
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error al dar like");
+      toast.error("Error al dar like");
     }
   }
 </script>
