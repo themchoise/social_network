@@ -22,14 +22,7 @@ COPY . .
 RUN mkdir -p logs media staticfiles
 
 # Copiar scripts de inicialización
-COPY init_database.py .
 COPY start.sh .
-
-RUN chmod +x init_database.py start.sh
-
-# Crear un usuario no-root para ejecutar la aplicación
-RUN adduser --disabled-password --gecos '' appuser || true
-RUN chown -R appuser:appuser /app || true
 
 EXPOSE 8000
 

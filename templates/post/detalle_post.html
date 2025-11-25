@@ -444,6 +444,9 @@
       const originalText = btn.innerHTML;
       btn.innerHTML = '<span style="opacity: 0.6;">⏳</span> Procesando...';
       
+      // Obtener el elemento del contador de likes
+      const likeCounter = document.querySelector('.post-detail-stats .stat:first-child .stat-number');
+      
       const response = await fetch(`/post/${postId}/like/`, {
         method: "POST",
         headers: {
@@ -462,12 +465,21 @@
           btn.classList.remove("liked");
         }
 
-        if (data.author_gamification) {
-          const modal = new GamificationModal();
-          modal.show(data.author_gamification);
+        // Actualizar contador de likes sin refrescar la página
+        if (likeCounter && data.like_count !== undefined) {
+          likeCounter.textContent = data.like_count;
         }
 
-        setTimeout(() => location.reload(), 1000);
+        if (data.author_gamification) {
+          gamificationModal.show(data.author_gamification);
+        }
+
+        // Remover estado de procesamiento después de un pequeño delay
+        setTimeout(() => {
+          btn.classList.remove('processing');
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }, 500);
       } else {
         // Error en la respuesta
         btn.classList.remove('processing');

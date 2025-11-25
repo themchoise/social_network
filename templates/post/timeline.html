@@ -297,6 +297,10 @@ Social{% endblock %} {% block extra_css %}
       const originalText = btn.innerHTML;
       btn.innerHTML = '<span style="opacity: 0.6;">⏳</span> Procesando...';
       
+      // Obtener el contenedor de stats del post
+      const postCard = btn.closest('.post-card');
+      const likeCounter = postCard.querySelector('.post-stat:first-child');
+      
       const response = await fetch(`/post/${postId}/like/`, {
         method: "POST",
         headers: {
@@ -316,13 +320,22 @@ Social{% endblock %} {% block extra_css %}
           btn.classList.remove("liked");
         }
 
+        // Actualizar contador de likes sin refrescar la página
+        if (likeCounter && data.like_count !== undefined) {
+          likeCounter.textContent = `❤️ ${data.like_count} likes`;
+        }
+
         // Mostrar modal de gamificación si el autor recibió puntos
         if (data.author_gamification) {
           gamificationModal.show(data.author_gamification);
         }
 
-        // Recargar para actualizar contadores
-        setTimeout(() => location.reload(), 1000);
+        // Remover estado de procesamiento después de un pequeño delay
+        setTimeout(() => {
+          btn.classList.remove('processing');
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }, 500);
       } else {
         // Error en la respuesta
         btn.classList.remove('processing');
