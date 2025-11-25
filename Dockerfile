@@ -1,6 +1,10 @@
 
 FROM python:3.11-slim
 
+# Argumento para invalidar cache en cada build
+ARG BUILD_DATE
+ARG GIT_COMMIT
+
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DJANGO_SETTINGS_MODULE=socialnetwork_project.production_settings
@@ -17,6 +21,9 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Invalidar cache para que siempre copie código nuevo
+RUN echo "Build date: ${BUILD_DATE}"
 
 COPY . .
 
