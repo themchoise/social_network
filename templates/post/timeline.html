@@ -137,6 +137,18 @@ Social{% endblock %} {% block extra_css %}
     color: #d32f2f;
   }
 
+  .post-action-btn.processing {
+    background: #4a5568;
+    color: white;
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+
+  .post-action-btn:disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   .post-stats {
     display: flex;
     gap: 20px;
@@ -271,7 +283,20 @@ Social{% endblock %} {% block extra_css %}
 <script src="{% static 'js/gamification.js' %}"></script>
 <script>
   async function toggleLike(postId) {
+    const btn = document.querySelector(`[data-post-id="${postId}"]`);
+    
+    // Evitar múltiples clics
+    if (btn.classList.contains('processing')) {
+      return;
+    }
+    
     try {
+      // Mostrar estado de procesamiento
+      btn.classList.add('processing');
+      btn.disabled = true;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span style="opacity: 0.6;">⏳</span> Procesando...';
+      
       const response = await fetch(`/post/${postId}/like/`, {
         method: "POST",
         headers: {
@@ -285,7 +310,6 @@ Social{% endblock %} {% block extra_css %}
 
       if (data.success) {
         // Actualizar UI
-        const btn = document.querySelector(`[data-post-id="${postId}"]`);
         if (data.liked) {
           btn.classList.add("liked");
         } else {
@@ -299,9 +323,18 @@ Social{% endblock %} {% block extra_css %}
 
         // Recargar para actualizar contadores
         setTimeout(() => location.reload(), 1000);
+      } else {
+        // Error en la respuesta
+        btn.classList.remove('processing');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        toast.error(data.error || "Error al dar like");
       }
     } catch (error) {
       console.error("Error:", error);
+      btn.classList.remove('processing');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
       toast.error("Error al dar like");
     }
   }

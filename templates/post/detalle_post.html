@@ -1,6 +1,9 @@
-{% extends 'base.html' %} {% load static %} {% block title %}{{
-post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
-%}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.content|truncatewords:10 }} - Red Social{% endblock %}
+
+{% block extra_css %}
 <style>
   .post-detail-container {
     max-width: 700px;
@@ -182,6 +185,18 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
     color: #d32f2f;
   }
 
+  .action-btn.processing {
+    background: #4a5568;
+    color: white;
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+
+  .action-btn:disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   .comments-section {
     margin-top: 40px;
   }
@@ -289,7 +304,9 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
     color: #999;
   }
 </style>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 {% csrf_token %}
 <div class="post-detail-container">
   <a href="{% url 'post:timeline' %}" class="back-link">← Volver al Timeline</a>
@@ -413,7 +430,20 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
 <script src="{% static 'js/gamification.js' %}"></script>
 <script>
   async function toggleLike(postId) {
+    const btn = document.querySelector(".like-btn");
+    
+    // Evitar múltiples clics
+    if (btn.classList.contains('processing')) {
+      return;
+    }
+    
     try {
+      // Mostrar estado de procesamiento
+      btn.classList.add('processing');
+      btn.disabled = true;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span style="opacity: 0.6;">⏳</span> Procesando...';
+      
       const response = await fetch(`/post/${postId}/like/`, {
         method: "POST",
         headers: {
@@ -426,7 +456,6 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
       const data = await response.json();
 
       if (data.success) {
-        const btn = document.querySelector(".like-btn");
         if (data.liked) {
           btn.classList.add("liked");
         } else {
@@ -439,9 +468,19 @@ post.content|truncatewords:10 }} - Red Social{% endblock %} {% block extra_css
         }
 
         setTimeout(() => location.reload(), 1000);
+      } else {
+        // Error en la respuesta
+        btn.classList.remove('processing');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        toast.error(data.error || "Error al dar like");
       }
     } catch (error) {
       console.error("Error:", error);
+      btn.classList.remove('processing');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      toast.error("Error al dar like");
     }
   }
 

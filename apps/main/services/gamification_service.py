@@ -12,7 +12,7 @@ from apps.achievement.models import UserAchievement, Achievement
 POINTS_CONFIG = {
     'post': 10,
     'comment': 5,
-    'like_received': 2,
+    'like_received': 1,
     'note_shared': 8,
     'achievement_unlocked': 0,  # Los puntos vienen del achievement
     'login_streak': 3,

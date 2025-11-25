@@ -38,19 +38,18 @@
 
     {% block extra_css %}{% endblock %}
   </head>
-  <body class="h-full">
+  <body class="h-full overflow-hidden">
     {% include 'components/toast.html' %}
-    <div class="min-h-full">
+    {% if user.is_authenticated %}
+      {% include 'components/navbar.html' %}
+    {% endif %}
+
+    <div class="flex h-[calc(100vh-4rem)]">
       {% if user.is_authenticated %}
-        {% include 'components/navbar.html' %}
+        {% include 'components/sidebar.html' %}
       {% endif %}
 
-      <div class="flex h-screen {% if user.is_authenticated %}pt-16{% endif %}">
-        {% if user.is_authenticated %}
-          {% include 'components/sidebar.html' %}
-        {% endif %}
-
-        <main class="flex-1 overflow-y-auto bg-gray-50 lg:ml-0">
+      <main class="flex-1 overflow-y-auto bg-gray-50">
           <div class="py-4 sm:py-6">
             <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
               {% block breadcrumbs %}{% endblock %}
@@ -67,7 +66,6 @@
             </div>
           </div>
         </main>
-      </div>
     </div>
 
     <script src="{% static 'js/app.js' %}"></script>

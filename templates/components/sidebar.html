@@ -1,5 +1,5 @@
 ﻿<!-- Sidebar izquierdo -->
-<aside class="hidden lg:flex h-screen w-64 bg-white border-r border-gray-200 fixed left-0 top-16 overflow-y-auto flex-col">
+<aside class="hidden lg:flex h-full w-64 bg-white border-r border-gray-200 overflow-y-auto flex-col">
   <nav class="p-6 space-y-8">
     
     <!-- Main Navigation -->
@@ -103,17 +103,4 @@
     </div>
 
   </nav>
-
-  <!-- User Profile Section (Bottom) -->
-  <div class="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-gray-50 p-4">
-    <div class="flex items-center space-x-3">
-      <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-        {{ user.username|first|upper }}
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-900 truncate">{{ user.first_name|default:user.username }}</p>
-        <p class="text-xs text-gray-500 truncate">@{{ user.username }}</p>
-      </div>
-    </div>
-  </div>
 </aside>
