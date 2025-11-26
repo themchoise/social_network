@@ -10,10 +10,13 @@ from decouple import config
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Configurar ALLOWED_HOSTS desde variable de entorno o usar localhost
+# IMPORTANTE: NO incluir protocolo (http/https), solo el dominio
 ALLOWED_HOSTS_ENV = config('ALLOWED_HOSTS', default='localhost,127.0.0.1')
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_ENV.split(',')]
+ALLOWED_HOSTS = [host.strip().replace('https://', '').replace('http://', '') 
+                 for host in ALLOWED_HOSTS_ENV.split(',')]
 
 # CSRF confiable para CapRover
+# IMPORTANTE: AQUÍ SI incluir protocolo completo (https://dominio)
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS', 
     default='http://localhost:8000,http://127.0.0.1:8000'

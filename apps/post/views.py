@@ -6,6 +6,9 @@ from apps.post.models import Post
 from apps.main.services.gamification_service import GamificationService
 from apps.user.views import custom_login_required
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @custom_login_required
@@ -107,14 +110,12 @@ def crear_post(request):
                 privacy_level=privacy,
             )
             
-            # 🎮 OTORGAR PUNTOS POR GAMIFICACIÓN
             gamification_result = GamificationService.award_points(
                 user=request.user,
                 source='post',
                 description=f'Post creado: "{content[:50]}..."'
             )
             
-            # 🏆 VERIFICAR LOGROS DESBLOQUEADOS
             achievements_result = GamificationService.check_achievements(request.user)
             
             # Respuesta diferenciada para AJAX o formulario HTML
@@ -256,22 +257,19 @@ def toggle_like(request, post_id):
                 object_id=post.id
             )
         except ContentType.DoesNotExist as e:
-            print(f"[ERROR] ContentType para Post no existe: {e}")
-            traceback.print_exc()
+            logger.error(f"ContentType para Post no existe: {e}", exc_info=True)
             return JsonResponse({
                 'success': False,
                 'error': 'Error del sistema: tipo de contenido no encontrado'
             }, status=500)
         except ValueError as e:
-            print(f"[ERROR] No se pudo obtener ContentType: {e}")
-            traceback.print_exc()
+            logger.error(f"No se pudo obtener ContentType: {e}", exc_info=True)
             return JsonResponse({
                 'success': False,
                 'error': 'Error del sistema: no se pudo obtener el tipo de contenido'
             }, status=500)
         except Exception as e:
-            print(f"[ERROR] Error al crear/obtener like: {e}")
-            traceback.print_exc()
+            logger.error(f"Error al crear/obtener like: {e}", exc_info=True)
             return JsonResponse({
                 'success': False,
                 'error': f'Error al procesar like: {str(e)}'
@@ -284,9 +282,7 @@ def toggle_like(request, post_id):
                 object_id=post.id
             ).count()
         except Exception as e:
-            print(f"[ERROR] Error contando likes: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Error contando likes: {e}", exc_info=True)
             like_count = 0
         
         if created:
@@ -301,9 +297,7 @@ def toggle_like(request, post_id):
                 # Verificar logros del autor
                 achievements_result = GamificationService.check_achievements(post.author)
             except Exception as e:
-                print(f"[ERROR] Error en gamification: {e}")
-                import traceback
-                traceback.print_exc()
+                logger.error(f"Error en gamification: {e}", exc_info=True)
                 gamification_result = {'points': 0}
                 achievements_result = []
             
@@ -321,9 +315,7 @@ def toggle_like(request, post_id):
             try:
                 like.delete()
             except Exception as e:
-                print(f"[ERROR] Error eliminando like: {e}")
-                import traceback
-                traceback.print_exc()
+                logger.error(f"Error eliminando like: {e}", exc_info=True)
                 return JsonResponse({
                     'success': False,
                     'error': f'Error al eliminar like: {str(e)}'
@@ -336,9 +328,7 @@ def toggle_like(request, post_id):
             })
             
     except Exception as e:
-        print(f"[ERROR] Error en toggle_like: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error en toggle_like: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': f'Error al procesar like: {str(e)}'
