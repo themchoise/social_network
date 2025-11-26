@@ -9,6 +9,50 @@ import json
 
 
 @custom_login_required
+@require_http_methods(["GET"])
+def get_comments(request, post_id):
+    """Obtener comentarios de un post (AJAX)"""
+    try:
+        post = get_object_or_404(Post, id=post_id)
+        
+        # Verificar permisos de visualización
+        if not post.can_view(request.user):
+            return JsonResponse({
+                'success': False,
+                'error': 'No tienes permiso para ver este post'
+            }, status=403)
+        
+        # Obtener comentarios
+        comentarios = post.comments.select_related('author').order_by('-created_at')
+        
+        comentarios_data = []
+        for comment in comentarios:
+            comentarios_data.append({
+                'id': comment.id,
+                'author': comment.author.get_full_name_or_username(),
+                'author_initial': comment.author.get_full_name_or_username()[0].upper(),
+                'content': comment.content,
+                'created_at': comment.created_at.isoformat(),
+                'created_at_display': f"{comment.created_at.strftime('%d/%m/%Y %H:%M')}",
+                'has_image': bool(comment.image),
+                'image_url': comment.image.url if comment.image else None,
+                'is_author': comment.author == request.user
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'count': len(comentarios_data),
+            'comments': comentarios_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+
+@custom_login_required
 def timeline(request):
     """Vista del timeline con todos los posts"""
     posts = Post.objects.select_related('author').filter(

@@ -235,7 +235,9 @@ Social{% endblock %} {% block extra_css %}
 
     <div class="post-stats">
       <div class="post-stat">❤️ {{ post.get_like_count }} likes</div>
-      <div class="post-stat">💬 {{ post.get_comment_count }} comentarios</div>
+      <a href="{% url 'post:detalle' post.id %}" class="post-stat" style="cursor: pointer; text-decoration: none; color: inherit;">
+        💬 {{ post.get_comment_count }} comentarios
+      </a>
       <div class="post-stat">👁️ {{ post.views_count }} vistas</div>
     </div>
 
