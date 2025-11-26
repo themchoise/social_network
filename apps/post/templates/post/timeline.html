@@ -1,110 +1,123 @@
-{% extends 'post/base.html' %}
-
-{% block title %}Timeline - Red Social{% endblock %}
-
-{% block content %}
+{% extends 'post/base.html' %} {% block title %}Timeline - Red Social{% endblock
+%} {% block content %}
 <div class="row">
-    <div class="col-lg-8">
-        <h2><i class="bi bi-chat-dots"></i> Timeline</h2>
-        
-        <!-- Formulario para crear post (si está autenticado) -->
-        {% if user.is_authenticated %}
-        <div class="card mb-4">
-            <div class="card-body">
-                <h6>¿Qué estás pensando, {{ user.username }}?</h6>
-                <!-- TODO: Formulario para crear post -->
-                <form action="#" method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <textarea class="form-control" rows="3" placeholder="Escribe algo..." disabled></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" disabled>
-                        <i class="bi bi-send"></i> Publicar
-                    </button>
-                </form>
-                <small class="text-muted">Completa el modelo Post para habilitar esta función</small>
-            </div>
+  <div class="col-lg-8">
+    <h2><i class="bi bi-chat-dots"></i> Timeline</h2>
+
+    <!-- Formulario para crear post (si está autenticado) -->
+    {% if user.is_authenticated %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6>¿Qué estás pensando, {{ user.username }}?</h6>
+        <!-- TODO: Formulario para crear post -->
+        <form action="#" method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="Escribe algo..."
+              disabled
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" disabled>
+            <i class="bi bi-send"></i> Publicar
+          </button>
+        </form>
+        <small class="text-muted"
+          >Completa el modelo Post para habilitar esta función</small
+        >
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Lista de Posts -->
+    {% if mensaje %}
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle"></i> {{ mensaje }}
+      <hr />
+      <h6>Para ver el timeline completo:</h6>
+      <ol>
+        <li>Completa los modelos en cada aplicación</li>
+        <li>Ejecuta: <code>python manage.py makemigrations</code></li>
+        <li>Ejecuta: <code>python manage.py migrate</code></li>
+        <li>
+          Crea un superusuario: <code>python manage.py createsuperuser</code>
+        </li>
+        <li>Descomenta el código en las vistas</li>
+      </ol>
+    </div>
+    {% endif %} {% comment %} TODO: Descomenta este bloque cuando tengas los
+    modelos completados {% for post in posts %}
+    <div class="card post-card">
+      <div class="card-body">
+        <!-- Header del Post -->
+        <div class="d-flex align-items-center mb-3">
+          <img
+            src="https://via.placeholder.com/40"
+            alt="Avatar"
+            class="avatar me-3"
+          />
+          <div>
+            <h6 class="mb-0">{{ post.autor.username }}</h6>
+            <small class="text-muted"
+              >{{ post.fecha_creacion|timesince }} atrás</small
+            >
+          </div>
         </div>
+
+        <!-- Contenido del Post -->
+        <p class="card-text">{{ post.contenido }}</p>
+
+        {% if post.imagen %}
+        <img
+          src="{{ post.imagen.url }}"
+          class="img-fluid rounded mb-3"
+          alt="Imagen del post"
+        />
         {% endif %}
 
-        <!-- Lista de Posts -->
-        {% if mensaje %}
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> {{ mensaje }}
-                <hr>
-                <h6>Para ver el timeline completo:</h6>
-                <ol>
-                    <li>Completa los modelos en cada aplicación</li>
-                    <li>Ejecuta: <code>python manage.py makemigrations</code></li>
-                    <li>Ejecuta: <code>python manage.py migrate</code></li>
-                    <li>Crea un superusuario: <code>python manage.py createsuperuser</code></li>
-                    <li>Descomenta el código en las vistas</li>
-                </ol>
-            </div>
-        {% endif %}
+        <!-- Acciones del Post -->
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-heart"></i> {{ post.likes_count }}
+            </button>
+            <button class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-chat"></i> {{ post.comentarios_count }}
+            </button>
+          </div>
+          <small class="text-muted"
+            >{{ post.fecha_creacion|date:"d/m/Y H:i" }}</small
+          >
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center">
+      <i
+        class="bi bi-chat-square-text"
+        style="font-size: 3rem; color: #ccc"
+      ></i>
+      <p class="text-muted">No hay posts para mostrar</p>
+    </div>
+    {% endfor %} {% endcomment %}
+  </div>
 
-        {% comment %}
-        TODO: Descomenta este bloque cuando tengas los modelos completados
-        
-        {% for post in posts %}
-        <div class="card post-card">
-            <div class="card-body">
-                <!-- Header del Post -->
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://via.placeholder.com/40" alt="Avatar" class="avatar me-3">
-                    <div>
-                        <h6 class="mb-0">{{ post.autor.username }}</h6>
-                        <small class="text-muted">{{ post.fecha_creacion|timesince }} atrás</small>
-                    </div>
-                </div>
-                
-                <!-- Contenido del Post -->
-                <p class="card-text">{{ post.contenido }}</p>
-                
-                {% if post.imagen %}
-                    <img src="{{ post.imagen.url }}" class="img-fluid rounded mb-3" alt="Imagen del post">
-                {% endif %}
-                
-                <!-- Acciones del Post -->
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <button class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-heart"></i> {{ post.likes_count }}
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-chat"></i> {{ post.comentarios_count }}
-                        </button>
-                    </div>
-                    <small class="text-muted">{{ post.fecha_creacion|date:"d/m/Y H:i" }}</small>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-            <div class="text-center">
-                <i class="bi bi-chat-square-text" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted">No hay posts para mostrar</p>
-            </div>
-        {% endfor %}
-        
-        {% endcomment %}
+  <!-- Sidebar derecho -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h6><i class="bi bi-people"></i> Usuarios Sugeridos</h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Función en desarrollo...</p>
+      </div>
     </div>
-    
-    <!-- Sidebar derecho -->
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h6><i class="bi bi-people"></i> Usuarios Sugeridos</h6>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Función en desarrollo...</p>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
-console.log('Red Social cargada!');
+  console.log("Red Social cargada!");
 </script>
 {% endblock %}
