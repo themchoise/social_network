@@ -15,7 +15,6 @@ class GamificationModal {
    */
   init() {
     this.createContainers();
-    console.log("Sistema de gamificación inicializado");
   }
 
   /**

@@ -25,7 +25,6 @@ def award_points_for_post(sender, instance, created, **kwargs):
             description=f'Post creado: "{instance.content[:50]}..."'
         )
         
-        # Verificar logros desbloqueados
         GamificationService.check_achievements(instance.author)
 
 
@@ -39,7 +38,6 @@ def award_points_for_comment(sender, instance, created, **kwargs):
             description=f'Comentario creado en post de {instance.post.author.username}'
         )
         
-        # Verificar logros desbloqueados
         GamificationService.check_achievements(instance.author)
 
 
@@ -47,7 +45,6 @@ def award_points_for_comment(sender, instance, created, **kwargs):
 def award_points_for_like(sender, instance, created, **kwargs):
     """Otorga puntos al autor cuando recibe un like"""
     if created:
-        # Obtener el objeto original (post, comment, etc)
         content_object = instance.content_object
         
         if content_object and hasattr(content_object, 'author'):
@@ -57,7 +54,6 @@ def award_points_for_like(sender, instance, created, **kwargs):
                 description=f'{instance.user.username} te dio like'
             )
             
-            # Verificar logros desbloqueados
             GamificationService.check_achievements(content_object.author)
 
 """

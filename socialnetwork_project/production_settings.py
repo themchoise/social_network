@@ -23,7 +23,7 @@ CSRF_TRUSTED_ORIGINS = config(
 )
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in CSRF_TRUSTED_ORIGINS.split(',')]
 
-DATABASE_URL = config('DATABASE_URL', default='sqlite:///app/db.sqlite3')
+DATABASE_URL = config('DATABASE_URL')
 
 if DATABASE_URL.startswith('postgres://'):
     import dj_database_url
@@ -137,6 +137,5 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-# CORS configurado específicamente (no para todos los orígenes)
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True

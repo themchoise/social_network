@@ -56,7 +56,6 @@ class GamificationService:
         old_level = user.level
         old_experience = user.experience_points
         
-        # Crear registro en historial
         points_history = UserPointsHistory.objects.create(
             user=user,
             points=points,
@@ -64,10 +63,8 @@ class GamificationService:
             description=description or f'Puntos por {source}'
         )
         
-        # Actualizar puntos del usuario
         user.add_points(points)
         
-        # Verificar si hubo cambio de nivel
         level_up = user.level > old_level
         
         return {
@@ -96,7 +93,6 @@ class GamificationService:
         if not user or not achievement:
             return {'success': False, 'error': 'Usuario o logro no válido'}
         
-        # Verificar si el usuario ya tiene este logro
         existing = UserAchievement.objects.filter(
             user=user,
             achievement=achievement
@@ -105,13 +101,11 @@ class GamificationService:
         if existing:
             return {'success': False, 'error': 'Este usuario ya tiene este logro'}
         
-        # Crear el logro del usuario
         user_achievement = UserAchievement.objects.create(
             user=user,
             achievement=achievement
         )
         
-        # Otorgar puntos del logro
         result = GamificationService.award_points(
             user=user,
             source='achievement',
@@ -146,7 +140,6 @@ class GamificationService:
         """
         unlocked_achievements = []
         
-        # Obtener todos los logros activos que el usuario no tiene
         available_achievements = Achievement.objects.filter(
             is_active=True
         ).exclude(
@@ -178,7 +171,6 @@ class GamificationService:
         
         condition = achievement.condition_description.lower()
         
-        # Verificar condiciones comunes
         if 'first post' in condition:
             return user.posts.count() >= 1
         

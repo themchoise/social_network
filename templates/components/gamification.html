@@ -32,7 +32,7 @@
             pointsValue.textContent = stats.total_points;
           }
         } catch (error) {
-          console.log("Error updating stats badge");
+          // Stats update failed silently
         }
       }, 5000);
     }

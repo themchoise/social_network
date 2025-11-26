@@ -71,7 +71,6 @@ def register_view(request):
                 'last_name': last_name,
             })
         
-        # Crear usuario
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -80,7 +79,6 @@ def register_view(request):
             last_name=last_name,
         )
         
-        # Login automático
         login(request, user)
         return redirect('post:timeline')
     

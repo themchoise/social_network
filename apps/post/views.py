@@ -18,14 +18,12 @@ def get_comments(request, post_id):
     try:
         post = get_object_or_404(Post, id=post_id)
         
-        # Verificar permisos de visualización
         if not post.can_view(request.user):
             return JsonResponse({
                 'success': False,
                 'error': 'No tienes permiso para ver este post'
             }, status=403)
         
-        # Obtener comentarios
         comentarios = post.comments.select_related('author').order_by('-created_at')
         
         comentarios_data = []
@@ -102,7 +100,6 @@ def crear_post(request):
                     'error': 'El contenido es muy largo (máximo 5000 caracteres)'
                 })
             
-            # Crear el post
             post = Post.objects.create(
                 author=request.user,
                 content=content,
@@ -147,7 +144,6 @@ def crear_post(request):
                 'error': f'Error al crear post: {str(e)}'
             })
     
-    # GET: mostrar formulario
     return render(request, 'post/crear_post.html')
 
 
@@ -156,14 +152,11 @@ def detalle_post(request, post_id):
     """Ver detalles de un post y crear comentarios"""
     post = get_object_or_404(Post, id=post_id)
     
-    # Verificar permisos de visualización
     if not post.can_view(request.user):
         return render(request, 'errors/403.html', status=403)
     
-    # Incrementar vistas
     post.increment_views()
     
-    # Si es POST, crear un comentario
     if request.method == 'POST':
         try:
             content = request.POST.get('content', '').strip()
@@ -177,14 +170,12 @@ def detalle_post(request, post_id):
             
             from apps.comment.models import Comment
             
-            # Crear el comentario
             comment = Comment.objects.create(
                 author=request.user,
                 post=post,
                 content=content
             )
             
-            # Otorgar puntos por comentar
             gamification_result = GamificationService.award_points(
                 user=request.user,
                 source='comment',
@@ -213,7 +204,6 @@ def detalle_post(request, post_id):
                 }, status=500)
             return redirect('post:detalle', post_id=post.id)
     
-    # Obtener comentarios
     comentarios = post.comments.select_related('author').order_by('-created_at')
     
     contexto = {
@@ -231,21 +221,17 @@ def toggle_like(request, post_id):
     try:
         post = get_object_or_404(Post, id=post_id)
         
-        # Verificar permisos - simplificar para evitar errores
         if post.privacy_level == 'private' and post.author != request.user:
             return JsonResponse({
                 'success': False,
                 'error': 'No tienes permiso para dar like a este post'
             }, status=403)
         
-        # Obtener o crear el like
         from apps.like.models import Like
         from django.contrib.contenttypes.models import ContentType
         import traceback
         
         try:
-            # Obtener ContentType de forma segura usando get_for_model
-            # que es más confiable que parámetros
             content_type = ContentType.objects.get_for_model(Post)
             
             if content_type is None:
@@ -286,7 +272,6 @@ def toggle_like(request, post_id):
             like_count = 0
         
         if created:
-            # Nuevo like: otorgar puntos al autor
             try:
                 gamification_result = GamificationService.award_points(
                     user=post.author,
@@ -294,7 +279,6 @@ def toggle_like(request, post_id):
                     description=f'{request.user.username} te dio like en un post'
                 )
                 
-                # Verificar logros del autor
                 achievements_result = GamificationService.check_achievements(post.author)
             except Exception as e:
                 logger.error(f"Error en gamification: {e}", exc_info=True)
@@ -311,7 +295,6 @@ def toggle_like(request, post_id):
                 }
             })
         else:
-            # Eliminar like
             try:
                 like.delete()
             except Exception as e:
@@ -340,7 +323,6 @@ def eliminar_post(request, post_id):
     """Eliminar un post (solo el autor)"""
     post = get_object_or_404(Post, id=post_id)
     
-    # Verificar que el usuario es el autor
     if post.author != request.user:
         return render(request, 'errors/403.html', status=403)
     
@@ -371,7 +353,6 @@ def editar_post(request, post_id):
     """Editar un post (solo el autor)"""
     post = get_object_or_404(Post, id=post_id)
     
-    # Verificar que el usuario es el autor
     if post.author != request.user:
         return render(request, 'errors/403.html', status=403)
     

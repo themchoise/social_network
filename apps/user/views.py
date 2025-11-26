@@ -53,7 +53,6 @@ def login_view(request):
                 'username': username
             })
     
-    # GET request: limpiar mensajes previos
     storage = messages.get_messages(request)
     storage.used = True
     
@@ -107,7 +106,6 @@ def register_view(request):
                 'last_name': last_name,
             })
         
-        # Crear usuario
         try:
             user = User.objects.create_user(
                 username=username,
@@ -117,7 +115,6 @@ def register_view(request):
                 last_name=last_name,
             )
             
-            # Autenticar y loguear
             user = authenticate(request, username=username, password=password)
             login(request, user)
             
@@ -136,7 +133,6 @@ def register_view(request):
                 'last_name': last_name,
             })
     
-    # GET request: limpiar mensajes previos
     storage = messages.get_messages(request)
     storage.used = True
     
@@ -155,13 +151,10 @@ def logout_view(request):
 def profile_view(request, username=None):
     """Vista de perfil de usuario"""
     if username is None:
-        # Ver perfil propio
         user = request.user
     else:
-        # Ver perfil de otro usuario
         user = User.objects.get(username=username)
     
-    # Obtener posts del usuario
     posts = user.posts.select_related('author').filter(
         is_hidden=False
     ).order_by('-created_at')[:20]
