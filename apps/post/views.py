@@ -1,188 +1,142 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from apps.post.models import Post
+from apps.post.forms import PostForm
 from apps.main.services.gamification_service import GamificationService
-from apps.user.views import custom_login_required
-import json
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-@custom_login_required
-@require_http_methods(["GET"])
-def get_comments(request, post_id):
-    """Obtener comentarios de un post (AJAX)"""
-    try:
-        post = get_object_or_404(Post, id=post_id)
-        
-        if not post.can_view(request.user):
-            return JsonResponse({
-                'success': False,
-                'error': 'No tienes permiso para ver este post'
-            }, status=403)
-        
-        comentarios = post.comments.select_related('author').order_by('-created_at')
-        
-        comentarios_data = []
-        for comment in comentarios:
-            comentarios_data.append({
-                'id': comment.id,
-                'author': comment.author.get_full_name_or_username(),
-                'author_initial': comment.author.get_full_name_or_username()[0].upper(),
-                'content': comment.content,
-                'created_at': comment.created_at.isoformat(),
-                'created_at_display': f"{comment.created_at.strftime('%d/%m/%Y %H:%M')}",
-                'has_image': bool(comment.image),
-                'image_url': comment.image.url if comment.image else None,
-                'is_author': comment.author == request.user
-            })
-        
-        return JsonResponse({
-            'success': True,
-            'count': len(comentarios_data),
-            'comments': comentarios_data
+def is_ajax(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+def get_comments_data(post, current_user):
+    comentarios = post.comments.select_related('author').order_by('-created_at')
+    comentarios_data = []
+    for comment in comentarios:
+        comentarios_data.append({
+            'id': comment.id,
+            'author': comment.author.get_full_name_or_username(),
+            'author_initial': comment.author.get_full_name_or_username()[0].upper(),
+            'content': comment.content,
+            'created_at': comment.created_at.isoformat(),
+            'created_at_display': f"{comment.created_at.strftime('%d/%m/%Y %H:%M')}",
+            'has_image': bool(comment.image),
+            'image_url': comment.image.url if comment.image else None,
+            'is_author': comment.author == current_user
         })
-        
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+    return comentarios_data
 
 
-@custom_login_required
-def timeline(request):
-    """Vista del timeline con todos los posts"""
-    posts = Post.objects.select_related('author').filter(
-        is_hidden=False
-    ).order_by('-created_at')[:50]
-    
-    contexto = {
-        'titulo': 'Timeline - Red Social',
-        'posts': posts,
-        'is_authenticated': request.user.is_authenticated,
-    }
-    
-    return render(request, 'post/timeline.html', contexto)
+class TimelineView(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'post/timeline.html'
+    context_object_name = 'posts'
+    login_url = 'user:login'
+
+    def get_queryset(self):
+        return Post.objects.select_related('author').filter(is_hidden=False).order_by('-created_at')[:50]
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['titulo'] = 'Timeline - Red Social'
+        ctx['is_authenticated'] = self.request.user.is_authenticated
+        return ctx
 
 
-@custom_login_required
-@require_http_methods(["GET", "POST"])
-def crear_post(request):
-    """Crear un nuevo post"""
-    if request.method == 'POST':
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post/crear_post.html'
+    login_url = 'user:login'
+    success_url = reverse_lazy('post:timeline')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.post_type = form.cleaned_data.get('post_type') or 'text'
+        form.instance.privacy_level = form.cleaned_data.get('privacy_level') or 'public'
+        p = form.save()
+
         try:
-            content = request.POST.get('content', '').strip()
-            post_type = request.POST.get('post_type', 'TEXT')
-            privacy = request.POST.get('privacy', 'public')
-            
-            # Validar contenido
-            if not content:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'El contenido del post no puede estar vacío'
-                    }, status=400)
-                return render(request, 'post/crear_post.html', {
-                    'error': 'El contenido del post no puede estar vacío'
-                })
-            
-            if len(content) > 5000:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'El contenido es muy largo (máximo 5000 caracteres)'
-                    }, status=400)
-                return render(request, 'post/crear_post.html', {
-                    'error': 'El contenido es muy largo (máximo 5000 caracteres)'
-                })
-            
-            post = Post.objects.create(
-                author=request.user,
-                content=content,
-                post_type=post_type.lower(),
-                privacy_level=privacy,
-            )
-            
             gamification_result = GamificationService.award_points(
-                user=request.user,
+                user=self.request.user,
                 source='post',
-                description=f'Post creado: "{content[:50]}..."'
+                description=f'Post creado: "{p.content[:50]}..."'
             )
-            
-            achievements_result = GamificationService.check_achievements(request.user)
-            
-            # Respuesta diferenciada para AJAX o formulario HTML
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'post': {
-                        'id': post.id,
-                        'content': post.content,
-                        'author': post.author.username,
-                        'created_at': post.created_at.isoformat(),
-                        'post_type': post.post_type,
-                    },
-                    'gamification': {
-                        **gamification_result,
-                        'achievements_unlocked': achievements_result
-                    }
-                })
-            
-            return redirect('post:timeline')
-            
-        except Exception as e:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'error': f'Error al crear post: {str(e)}'
-                }, status=500)
-            return render(request, 'post/crear_post.html', {
-                'error': f'Error al crear post: {str(e)}'
+            achievements_result = GamificationService.check_achievements(self.request.user)
+        except Exception:
+            gamification_result = {}
+            achievements_result = []
+
+        if is_ajax(self.request):
+            return JsonResponse({
+                'success': True,
+                'post': {
+                    'id': p.id,
+                    'content': p.content,
+                    'author': p.author.username,
+                    'created_at': p.created_at.isoformat(),
+                    'post_type': p.post_type,
+                },
+                'gamification': {**gamification_result, 'achievements_unlocked': achievements_result}
             })
-    
-    return render(request, 'post/crear_post.html')
+
+        return super().form_valid(form)
 
 
-@custom_login_required
-def detalle_post(request, post_id):
-    """Ver detalles de un post y crear comentarios"""
-    post = get_object_or_404(Post, id=post_id)
-    
-    if not post.can_view(request.user):
-        return render(request, 'errors/403.html', status=403)
-    
-    post.increment_views()
-    
-    if request.method == 'POST':
+class PostDetailView(LoginRequiredMixin, DetailView):
+    model = Post
+    template_name = 'post/detalle_post.html'
+    context_object_name = 'post'
+    pk_url_kwarg = 'post_id'
+    login_url = 'user:login'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.can_view(request.user):
+            return render(request, 'errors/403.html', status=403)
+
+        self.object.increment_views()
+        comentarios = self.object.comments.select_related('author').order_by('-created_at')
+        contexto = {
+            'post': self.object,
+            'comentarios': comentarios,
+        }
+        return render(request, self.template_name, contexto)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
         try:
             content = request.POST.get('content', '').strip()
-            
             if not content:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'El comentario no puede estar vacío'
-                    }, status=400)
-            
+                if is_ajax(request):
+                    return JsonResponse({'success': False, 'error': 'El comentario no puede estar vacío'}, status=400)
+
             from apps.comment.models import Comment
-            
+
             comment = Comment.objects.create(
                 author=request.user,
-                post=post,
+                post=self.object,
                 content=content
             )
-            
-            gamification_result = GamificationService.award_points(
-                user=request.user,
-                source='comment',
-                description=f'Comentario creado en post de {post.author.username}'
-            )
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+
+            try:
+                gamification_result = GamificationService.award_points(
+                    user=request.user,
+                    source='comment',
+                    description=f'Comentario creado en post de {self.object.author.username}'
+                )
+            except Exception:
+                gamification_result = {}
+
+            if is_ajax(request):
                 return JsonResponse({
                     'success': True,
                     'comment': {
@@ -193,50 +147,90 @@ def detalle_post(request, post_id):
                     },
                     'gamification': gamification_result
                 })
-            
-            return redirect('post:detalle', post_id=post.id)
-            
+
+            return redirect('post:detalle', post_id=self.object.id)
+
         except Exception as e:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'error': str(e)
-                }, status=500)
-            return redirect('post:detalle', post_id=post.id)
-    
-    comentarios = post.comments.select_related('author').order_by('-created_at')
-    
-    contexto = {
-        'post': post,
-        'comentarios': comentarios,
-    }
-    
-    return render(request, 'post/detalle_post.html', contexto)
+            if is_ajax(request):
+                return JsonResponse({'success': False, 'error': str(e)}, status=500)
+            return redirect('post:detalle', post_id=self.object.id)
 
 
-@custom_login_required
-@require_http_methods(["POST"])
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post/editar_post.html'
+    pk_url_kwarg = 'post_id'
+    login_url = 'user:login'
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user
+
+    def form_valid(self, form):
+        p = form.save()
+        if is_ajax(self.request):
+            return JsonResponse({'success': True, 'message': 'Post actualizado exitosamente'})
+        return redirect('post:detalle', post_id=p.id)
+
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'post/confirmar_eliminar.html'
+    pk_url_kwarg = 'post_id'
+    success_url = reverse_lazy('post:timeline')
+    login_url = 'user:login'
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            self.object.delete()
+            if is_ajax(request):
+                return JsonResponse({'success': True, 'message': 'Post eliminado exitosamente'})
+            return redirect(self.success_url)
+        except Exception as e:
+            if is_ajax(request):
+                return JsonResponse({'success': False, 'error': str(e)}, status=500)
+            return render(request, self.template_name, {'post': self.object, 'error': str(e)})
+
+
+@login_required(login_url='user:login')
+def get_comments(request, post_id):
+    """Obtener comentarios de un post (AJAX)"""
+    try:
+        post = get_object_or_404(Post, id=post_id)
+        if not post.can_view(request.user):
+            return JsonResponse({'success': False, 'error': 'No tienes permiso para ver este post'}, status=403)
+        comentarios_data = get_comments_data(post, request.user)
+        return JsonResponse({'success': True, 'count': len(comentarios_data), 'comments': comentarios_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required(login_url='user:login')
 def toggle_like(request, post_id):
     """Dar/quitar like a un post (AJAX)"""
     try:
         post = get_object_or_404(Post, id=post_id)
-        
+
         if post.privacy_level == 'private' and post.author != request.user:
             return JsonResponse({
                 'success': False,
                 'error': 'No tienes permiso para dar like a este post'
             }, status=403)
-        
+
         from apps.like.models import Like
         from django.contrib.contenttypes.models import ContentType
-        import traceback
-        
+
         try:
             content_type = ContentType.objects.get_for_model(Post)
-            
             if content_type is None:
                 raise ValueError("ContentType para Post no pudo ser determinado")
-            
+
             like, created = Like.objects.get_or_create(
                 user=request.user,
                 content_type=content_type,
@@ -260,7 +254,7 @@ def toggle_like(request, post_id):
                 'success': False,
                 'error': f'Error al procesar like: {str(e)}'
             }, status=500)
-        
+
         # Contar likes de forma segura
         try:
             like_count = Like.objects.filter(
@@ -270,7 +264,7 @@ def toggle_like(request, post_id):
         except Exception as e:
             logger.error(f"Error contando likes: {e}", exc_info=True)
             like_count = 0
-        
+
         if created:
             try:
                 gamification_result = GamificationService.award_points(
@@ -278,13 +272,13 @@ def toggle_like(request, post_id):
                     source='like_received',
                     description=f'{request.user.username} te dio like en un post'
                 )
-                
+
                 achievements_result = GamificationService.check_achievements(post.author)
             except Exception as e:
                 logger.error(f"Error en gamification: {e}", exc_info=True)
                 gamification_result = {'points': 0}
                 achievements_result = []
-            
+
             return JsonResponse({
                 'success': True,
                 'liked': True,
@@ -303,13 +297,13 @@ def toggle_like(request, post_id):
                     'success': False,
                     'error': f'Error al eliminar like: {str(e)}'
                 }, status=500)
-            
+
             return JsonResponse({
                 'success': True,
                 'liked': False,
                 'like_count': like_count
             })
-            
+
     except Exception as e:
         logger.error(f"Error en toggle_like: {str(e)}", exc_info=True)
         return JsonResponse({
@@ -318,71 +312,4 @@ def toggle_like(request, post_id):
         }, status=500)
 
 
-@custom_login_required
-def eliminar_post(request, post_id):
-    """Eliminar un post (solo el autor)"""
-    post = get_object_or_404(Post, id=post_id)
-    
-    if post.author != request.user:
-        return render(request, 'errors/403.html', status=403)
-    
-    if request.method == 'POST':
-        try:
-            post.delete()
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Post eliminado exitosamente'
-                })
-            
-            return redirect('post:timeline')
-        except Exception as e:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'error': str(e)
-                }, status=500)
-            return render(request, 'post/confirmar_eliminar.html', {'post': post, 'error': str(e)})
-    
-    return render(request, 'post/confirmar_eliminar.html', {'post': post})
 
-
-@custom_login_required
-def editar_post(request, post_id):
-    """Editar un post (solo el autor)"""
-    post = get_object_or_404(Post, id=post_id)
-    
-    if post.author != request.user:
-        return render(request, 'errors/403.html', status=403)
-    
-    if request.method == 'POST':
-        try:
-            content = request.POST.get('content', '').strip()
-            
-            if not content:
-                return render(request, 'post/editar_post.html', {
-                    'post': post,
-                    'error': 'El contenido no puede estar vacío'
-                })
-            
-            post.content = content
-            post.post_type = request.POST.get('post_type', post.post_type)
-            post.privacy_level = request.POST.get('privacy', post.privacy_level)
-            post.save()
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Post actualizado exitosamente'
-                })
-            
-            return redirect('post:detalle', post_id=post.id)
-            
-        except Exception as e:
-            return render(request, 'post/editar_post.html', {
-                'post': post,
-                'error': f'Error al editar: {str(e)}'
-            })
-    
-    return render(request, 'post/editar_post.html', {'post': post})

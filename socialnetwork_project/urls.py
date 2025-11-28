@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from django.http import JsonResponse
+from . import api as ninja_api
 
 def redirect_to_timeline(request):
     return redirect('/post/', permanent=False)
@@ -18,6 +19,7 @@ urlpatterns = [
     path('', redirect_to_timeline),
     path('post/', include('apps.post.urls')),
     path('user/', include('apps.user.urls')),
+    path('api/', ninja_api.api.urls),
     path('', include('apps.main.urls')),
 ]
 
