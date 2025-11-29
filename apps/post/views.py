@@ -198,118 +198,122 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return render(request, self.template_name, {'post': self.object, 'error': str(e)})
 
 
-@login_required(login_url='user:login')
-def get_comments(request, post_id):
-    """Obtener comentarios de un post (AJAX)"""
-    try:
-        post = get_object_or_404(Post, id=post_id)
-        if not post.can_view(request.user):
-            return JsonResponse({'success': False, 'error': 'No tienes permiso para ver este post'}, status=403)
-        comentarios_data = get_comments_data(post, request.user)
-        return JsonResponse({'success': True, 'count': len(comentarios_data), 'comments': comentarios_data})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='user:login')
-def toggle_like(request, post_id):
-    """Dar/quitar like a un post (AJAX)"""
-    try:
-        post = get_object_or_404(Post, id=post_id)
+class GetCommentsView(LoginRequiredMixin, View):
+    login_url = 'user:login'
 
-        if post.privacy_level == 'private' and post.author != request.user:
-            return JsonResponse({
-                'success': False,
-                'error': 'No tienes permiso para dar like a este post'
-            }, status=403)
-
-        from apps.like.models import Like
-        from django.contrib.contenttypes.models import ContentType
-
+    def get(self, request, post_id, *args, **kwargs):
         try:
-            content_type = ContentType.objects.get_for_model(Post)
-            if content_type is None:
-                raise ValueError("ContentType para Post no pudo ser determinado")
-
-            like, created = Like.objects.get_or_create(
-                user=request.user,
-                content_type=content_type,
-                object_id=post.id
-            )
-        except ContentType.DoesNotExist as e:
-            logger.error(f"ContentType para Post no existe: {e}", exc_info=True)
-            return JsonResponse({
-                'success': False,
-                'error': 'Error del sistema: tipo de contenido no encontrado'
-            }, status=500)
-        except ValueError as e:
-            logger.error(f"No se pudo obtener ContentType: {e}", exc_info=True)
-            return JsonResponse({
-                'success': False,
-                'error': 'Error del sistema: no se pudo obtener el tipo de contenido'
-            }, status=500)
+            post = get_object_or_404(Post, id=post_id)
+            if not post.can_view(request.user):
+                return JsonResponse({'success': False, 'error': 'No tienes permiso para ver este post'}, status=403)
+            comentarios_data = get_comments_data(post, request.user)
+            return JsonResponse({'success': True, 'count': len(comentarios_data), 'comments': comentarios_data})
         except Exception as e:
-            logger.error(f"Error al crear/obtener like: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+class ToggleLikeView(LoginRequiredMixin, View):
+    login_url = 'user:login'
+
+    def post(self, request, post_id, *args, **kwargs):
+        try:
+            post = get_object_or_404(Post, id=post_id)
+
+            if post.privacy_level == 'private' and post.author != request.user:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'No tienes permiso para dar like a este post'
+                }, status=403)
+
+            from apps.like.models import Like
+            from django.contrib.contenttypes.models import ContentType
+
+            try:
+                content_type = ContentType.objects.get_for_model(Post)
+                if content_type is None:
+                    raise ValueError("ContentType para Post no pudo ser determinado")
+
+                like, created = Like.objects.get_or_create(
+                    user=request.user,
+                    content_type=content_type,
+                    object_id=post.id
+                )
+            except ContentType.DoesNotExist as e:
+                logger.error(f"ContentType para Post no existe: {e}", exc_info=True)
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Error del sistema: tipo de contenido no encontrado'
+                }, status=500)
+            except ValueError as e:
+                logger.error(f"No se pudo obtener ContentType: {e}", exc_info=True)
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Error del sistema: no se pudo obtener el tipo de contenido'
+                }, status=500)
+            except Exception as e:
+                logger.error(f"Error al crear/obtener like: {e}", exc_info=True)
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error al procesar like: {str(e)}'
+                }, status=500)
+
+            # Contar likes de forma segura
+            try:
+                like_count = Like.objects.filter(
+                    content_type=content_type,
+                    object_id=post.id
+                ).count()
+            except Exception as e:
+                logger.error(f"Error contando likes: {e}", exc_info=True)
+                like_count = 0
+
+            if created:
+                try:
+                    gamification_result = GamificationService.award_points(
+                        user=post.author,
+                        source='like_received',
+                        description=f'{request.user.username} te dio like en un post'
+                    )
+
+                    achievements_result = GamificationService.check_achievements(post.author)
+                except Exception as e:
+                    logger.error(f"Error en gamification: {e}", exc_info=True)
+                    gamification_result = {'points': 0}
+                    achievements_result = []
+
+                return JsonResponse({
+                    'success': True,
+                    'liked': True,
+                    'like_count': like_count,
+                    'author_gamification': {
+                        **gamification_result,
+                        'achievements_unlocked': achievements_result
+                    }
+                })
+            else:
+                try:
+                    like.delete()
+                except Exception as e:
+                    logger.error(f"Error eliminando like: {e}", exc_info=True)
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Error al eliminar like: {str(e)}'
+                    }, status=500)
+
+                return JsonResponse({
+                    'success': True,
+                    'liked': False,
+                    'like_count': like_count
+                })
+
+        except Exception as e:
+            logger.error(f"Error en toggle_like: {str(e)}", exc_info=True)
             return JsonResponse({
                 'success': False,
                 'error': f'Error al procesar like: {str(e)}'
             }, status=500)
-
-        # Contar likes de forma segura
-        try:
-            like_count = Like.objects.filter(
-                content_type=content_type,
-                object_id=post.id
-            ).count()
-        except Exception as e:
-            logger.error(f"Error contando likes: {e}", exc_info=True)
-            like_count = 0
-
-        if created:
-            try:
-                gamification_result = GamificationService.award_points(
-                    user=post.author,
-                    source='like_received',
-                    description=f'{request.user.username} te dio like en un post'
-                )
-
-                achievements_result = GamificationService.check_achievements(post.author)
-            except Exception as e:
-                logger.error(f"Error en gamification: {e}", exc_info=True)
-                gamification_result = {'points': 0}
-                achievements_result = []
-
-            return JsonResponse({
-                'success': True,
-                'liked': True,
-                'like_count': like_count,
-                'author_gamification': {
-                    **gamification_result,
-                    'achievements_unlocked': achievements_result
-                }
-            })
-        else:
-            try:
-                like.delete()
-            except Exception as e:
-                logger.error(f"Error eliminando like: {e}", exc_info=True)
-                return JsonResponse({
-                    'success': False,
-                    'error': f'Error al eliminar like: {str(e)}'
-                }, status=500)
-
-            return JsonResponse({
-                'success': True,
-                'liked': False,
-                'like_count': like_count
-            })
-
-    except Exception as e:
-        logger.error(f"Error en toggle_like: {str(e)}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': f'Error al procesar like: {str(e)}'
-        }, status=500)
 
 
 
