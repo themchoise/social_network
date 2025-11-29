@@ -1,18 +1,14 @@
-{% extends 'main/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Inicio - SocialNetwork{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="jumbotron bg-light p-5 rounded">
-            <h1 class="display-4">¡Bienvenido a SocialNetwork!</h1>
-            <p class="lead">Una red social para estudiantes del instituto.</p>
-            <hr class="my-4">
-            <p>Explora las diferentes secciones:</p>
-            <a class="btn btn-primary btn-lg" href="{% url 'main:lista_usuarios' %}" role="button">Ver Usuarios</a>
-            <a class="btn btn-success btn-lg ms-2" href="{% url 'main:lista_carreras' %}" role="button">Ver Carreras</a>
-        </div>
+<div class="bg-white shadow rounded p-8">
+    <h1 class="text-3xl font-bold mb-2">¡Bienvenido a SocialNetwork!</h1>
+    <p class="text-gray-600 mb-4">Una red social para estudiantes del instituto.</p>
+    <div class="flex gap-3">
+        <a class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700" href="{% url 'main:lista_usuarios' %}">Ver Usuarios</a>
+        <a class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700" href="{% url 'main:lista_carreras' %}">Ver Carreras</a>
     </div>
 </div>
 {% endblock %}
