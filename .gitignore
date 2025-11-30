@@ -10,9 +10,9 @@ db.sqlite3-journal
 # Media files #
 media/
 
-# Static files #
+# Static files (track source, ignore collected & build output)
 staticfiles/
-static/
+static/css/output.css
 
 # Virtual environment #
 .env
