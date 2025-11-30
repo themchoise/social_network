@@ -264,38 +264,49 @@
         <div class="error-message" id="errorMessage"></div>
         <div class="success-message" id="successMessage"></div>
         
-        <form id="postForm" method="POST" action="{% url 'post:editar' post.id %}">
+        <form id="postForm" method="POST" action="{% url 'post:editar' post.id %}" novalidate>
             {% csrf_token %}
-            
+            {{ form.non_field_errors }}
             <div class="form-group">
-                <label for="content">Contenido *</label>
-                <textarea id="content" name="content" required>{{ post.content }}</textarea>
+                <label for="id_content">Contenido *</label>
+                {{ form.content }}
                 <div class="char-count"><span id="charCount">{{ post.content|length }}</span> / 5000 caracteres</div>
                 <div class="help-text">Máximo 5000 caracteres</div>
+                {% for error in form.content.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
             </div>
-            
             <div class="form-row">
                 <div class="form-group">
-                    <label for="post_type">Tipo de Post *</label>
-                    <select id="post_type" name="post_type" required>
-                        <option value="text" {% if post.post_type == 'text' %}selected{% endif %}>📝 Texto</option>
-                        <option value="question" {% if post.post_type == 'question' %}selected{% endif %}>❓ Pregunta</option>
-                        <option value="announcement" {% if post.post_type == 'announcement' %}selected{% endif %}>📰 Noticia</option>
-                        <option value="link" {% if post.post_type == 'link' %}selected{% endif %}>📚 Recurso</option>
-                        <option value="image" {% if post.post_type == 'image' %}selected{% endif %}>💬 Imagen</option>
-                    </select>
+                    <label for="id_post_type">Tipo de Post *</label>
+                    {{ form.post_type }}
+                    {% for error in form.post_type.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
                 </div>
-                
                 <div class="form-group">
-                    <label for="privacy">Privacidad *</label>
-                    <select id="privacy" name="privacy" required>
-                        <option value="public" {% if post.privacy_level == 'public' %}selected{% endif %}>🌐 Público</option>
-                        <option value="friends" {% if post.privacy_level == 'friends' %}selected{% endif %}>👥 Solo amigos</option>
-                        <option value="private" {% if post.privacy_level == 'private' %}selected{% endif %}>🔒 Privado</option>
-                    </select>
+                    <label for="id_privacy_level">Privacidad *</label>
+                    {{ form.privacy_level }}
+                    {% for error in form.privacy_level.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
                 </div>
             </div>
-            
+            <div class="form-group">
+                <label for="id_tags">Tags</label>
+                {{ form.tags }}
+                <div class="help-text">Separá por comas</div>
+                {% for error in form.tags.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="id_link_url">URL (opcional)</label>
+                {{ form.link_url }}
+                {% for error in form.link_url.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="id_link_title">Título del enlace (opcional)</label>
+                {{ form.link_title }}
+                {% for error in form.link_title.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="form-group">
+                <label for="id_link_description">Descripción del enlace (opcional)</label>
+                {{ form.link_description }}
+                {% for error in form.link_description.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+            </div>
             <div class="form-actions">
                 <a href="{% url 'post:detalle' post.id %}" class="btn btn-secondary">Cancelar</a>
                 <button type="submit" class="btn btn-primary" id="submitBtn">Guardar Cambios</button>
@@ -312,7 +323,7 @@
 <script src="{% static 'js/gamification.js' %}"></script>
 <script>
     const form = document.getElementById('postForm');
-    const contentTextarea = document.getElementById('content');
+    const contentTextarea = document.getElementById('id_content');
     const charCountSpan = document.getElementById('charCount');
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
@@ -361,7 +372,7 @@
             return;
         }
         
-        const postType = document.getElementById('post_type').value;
+        const postType = document.getElementById('id_post_type').value;
         if (!postType) {
             showError('Debes seleccionar un tipo de post');
             return;
@@ -373,7 +384,6 @@
         
         try {
             const formData = new FormData(form);
-            
             const response = await fetch('{% url "post:editar" post.id %}', {
                 method: 'POST',
                 headers: {
@@ -382,18 +392,16 @@
                 },
                 body: formData
             });
-            
             const data = await response.json();
-            
             if (data.success) {
                 showSuccess('¡Cambios guardados exitosamente! 💾');
-                
-                // Redirigir después de 1 segundo
-                setTimeout(() => {
-                    window.location.href = '{% url "post:detalle" post.id %}';
-                }, 1000);
+                setTimeout(() => { window.location.href = '{% url "post:detalle" post.id %}'; }, 1000);
             } else {
-                showError(data.error || 'Error al guardar los cambios');
+                if (data.errors) {
+                    showError('Errores en el formulario');
+                } else {
+                    showError(data.error || 'Error al guardar los cambios');
+                }
             }
         } catch (error) {
             console.error('Error:', error);

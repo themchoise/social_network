@@ -1,5 +1,7 @@
-{% extends 'base.html' %} {% load static %} {% block title %}Crear Post - Red
-Social{% endblock %} {% block extra_css %}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Crear Post - Red Social{% endblock %}
+{% block extra_css %}
 <style>
   .crear-post-container {
     max-width: 600px;
@@ -233,59 +235,59 @@ Social{% endblock %} {% block extra_css %}
     <div class="error-message" id="errorMessage"></div>
     <div class="success-message" id="successMessage"></div>
 
-    <form id="postForm" method="POST" action="{% url 'post:crear' %}">
+    <form id="postForm" method="POST" action="{% url 'post:crear' %}" novalidate>
       {% csrf_token %}
+      {{ form.non_field_errors }}
 
       <div class="form-group">
-        <label for="content">Contenido *</label>
-        <textarea
-          id="content"
-          name="content"
-          placeholder="¿Qué estás pensando?"
-          required
-        ></textarea>
-        <div class="char-count">
-          <span id="charCount">0</span> / 5000 caracteres
-        </div>
-        <div class="help-text">
-          Máximo 5000 caracteres. Se te otorgarán 10 puntos por crear este post.
-        </div>
+        <label for="id_content">Contenido *</label>
+        {{ form.content }}
+        <div class="char-count"><span id="charCount">0</span> / 5000 caracteres</div>
+        <div class="help-text">Máximo 5000 caracteres. Se te otorgarán puntos por crear este post.</div>
+        {% for error in form.content.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="post_type">Tipo de Post *</label>
-          <select id="post_type" name="post_type" required>
-            <option value="">-- Selecciona tipo --</option>
-            <option value="text">📝 Texto</option>
-            <option value="question">❓ Pregunta</option>
-            <option value="announcement">📰 Noticia</option>
-            <option value="link">📚 Recurso</option>
-            <option value="image">🖼️ Imagen</option>
-          </select>
-          <div class="help-text">
-            El tipo de post ayuda a categorizar el contenido
-          </div>
+          <label for="id_post_type">Tipo de Post *</label>
+          {{ form.post_type }}
+          <div class="help-text">El tipo de post ayuda a categorizar el contenido</div>
+          {% for error in form.post_type.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
         </div>
-
         <div class="form-group">
-          <label for="privacy">Privacidad *</label>
-          <select id="privacy" name="privacy" required>
-            <option value="public">🌐 Público</option>
-            <option value="friends">👥 Solo amigos</option>
-            <option value="private">🔒 Privado</option>
-          </select>
+          <label for="id_privacy_level">Privacidad *</label>
+          {{ form.privacy_level }}
           <div class="help-text">Quién puede ver este post</div>
+          {% for error in form.privacy_level.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="id_tags">Tags</label>
+        {{ form.tags }}
+        <div class="help-text">Separá por comas: ejemplo: programación, django</div>
+        {% for error in form.tags.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_link_url">URL (opcional)</label>
+        {{ form.link_url }}
+        {% for error in form.link_url.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="id_link_title">Título del enlace (opcional)</label>
+        {{ form.link_title }}
+        {% for error in form.link_title.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="id_link_description">Descripción del enlace (opcional)</label>
+        {{ form.link_description }}
+        {% for error in form.link_description.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+      </div>
+
       <div class="form-actions">
-        <a href="{% url 'post:timeline' %}" class="btn btn-secondary"
-          >Cancelar</a
-        >
-        <button type="submit" class="btn btn-primary" id="submitBtn">
-          Publicar Post
-        </button>
+        <a href="{% url 'post:timeline' %}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Publicar Post</button>
       </div>
     </form>
 
@@ -299,7 +301,7 @@ Social{% endblock %} {% block extra_css %}
 <script src="{% static 'js/gamification.js' %}"></script>
 <script>
   const form = document.getElementById("postForm");
-  const contentTextarea = document.getElementById("content");
+  const contentTextarea = document.getElementById("id_content");
   const charCountSpan = document.getElementById("charCount");
   const errorDiv = document.getElementById("errorMessage");
   const successDiv = document.getElementById("successMessage");
@@ -348,7 +350,7 @@ Social{% endblock %} {% block extra_css %}
       return;
     }
 
-    const postType = document.getElementById("post_type").value;
+    const postType = document.getElementById("id_post_type").value;
     if (!postType) {
       showError("Debes seleccionar un tipo de post");
       return;
@@ -360,38 +362,30 @@ Social{% endblock %} {% block extra_css %}
 
     try {
       const formData = new FormData(form);
-
       const response = await fetch('{% url "post:crear" %}', {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
-            .value,
-          "X-Requested-With": "XMLHttpRequest",
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'X-Requested-With': 'XMLHttpRequest'
         },
-        body: formData,
+        body: formData
       });
-
       const data = await response.json();
-
       if (data.success) {
-        showSuccess("¡Post publicado exitosamente! 🎉");
-
-        // Mostrar modal de gamificación
+        showSuccess('¡Post publicado exitosamente! 🎉');
         if (data.gamification) {
           const modal = new GamificationModal();
           modal.show(data.gamification);
         }
-
-        // Limpiar formulario
         form.reset();
-        charCountSpan.textContent = "0";
-
-        // Redirigir después de 2 segundos
-        setTimeout(() => {
-          window.location.href = '{% url "post:timeline" %}';
-        }, 2000);
+        charCountSpan.textContent = '0';
+        setTimeout(() => { window.location.href = '{% url "post:timeline" %}'; }, 2000);
       } else {
-        showError(data.error || "Error al publicar el post");
+        if (data.errors) {
+          showError('Errores en el formulario');
+        } else {
+          showError(data.error || 'Error al publicar el post');
+        }
       }
     } catch (error) {
       console.error("Error:", error);

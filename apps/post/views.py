@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.views import View
+from django.contrib import messages
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from apps.post.models import Post
@@ -87,8 +88,14 @@ class PostCreateView(LoginRequiredMixin, CreateView):
                 },
                 'gamification': {**gamification_result, 'achievements_unlocked': achievements_result}
             })
-
+        messages.success(self.request, 'Post creado exitosamente')
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if is_ajax(self.request):
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        messages.error(self.request, 'Revisá los errores del formulario')
+        return super().form_invalid(form)
 
 
 class PostDetailView(LoginRequiredMixin, DetailView):
@@ -171,7 +178,14 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         p = form.save()
         if is_ajax(self.request):
             return JsonResponse({'success': True, 'message': 'Post actualizado exitosamente'})
+        messages.success(self.request, 'Cambios guardados')
         return redirect('post:detalle', post_id=p.id)
+
+    def form_invalid(self, form):
+        if is_ajax(self.request):
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        messages.error(self.request, 'Errores al guardar, revisá el formulario')
+        return super().form_invalid(form)
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

@@ -1,15 +1,17 @@
 from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.conf import settings
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, FormView
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 import django
 import json
 from apps.user.models import User
 from apps.career.models import Career
 from apps.achievement.models import Achievement
 from apps.main.services.gamification_service import GamificationService
+from apps.main.forms import FeedbackForm
 
 
 class InicioRedirectView(View):
@@ -30,6 +32,22 @@ class HelpView(TemplateView):
         ctx['debug'] = settings.DEBUG
         ctx['django_version'] = django.get_version()
         return ctx
+
+
+class FeedbackView(LoginRequiredMixin, FormView):
+    login_url = 'user:login'
+    template_name = 'main/feedback.html'
+    form_class = FeedbackForm
+    success_url = '/'
+
+    def form_valid(self, form):
+        # Aquí podríamos enviar email o guardar en DB
+        messages.success(self.request, 'Gracias por tu feedback, ¡lo recibimos!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Por favor corregí los errores del formulario.')
+        return super().form_invalid(form)
 
 
 class UsuariosListView(ListView):

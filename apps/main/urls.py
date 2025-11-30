@@ -9,6 +9,7 @@ urlpatterns = [
     path('carreras/', views.CarrerasListView.as_view(), name='lista_carreras'),
     path('api/usuarios/', views.ApiUsuariosView.as_view(), name='api_usuarios'),
     path('help/', views.HelpView.as_view(), name='help'),
+    path('feedback/', views.FeedbackView.as_view(), name='feedback'),
 
     # Gamificación
     path('api/award-points/', views.AwardPointsView.as_view(), name='award_points'),

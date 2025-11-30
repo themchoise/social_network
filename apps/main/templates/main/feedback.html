@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+  <h2 class="text-xl font-semibold mb-1">Tu feedback</h2>
+  <p class="text-sm text-gray-500 mb-4">Contanos qué mejorarías o si encontraste un problema.</p>
+
+  <form method="post" action="" novalidate data-ajax="false" onsubmit="return validateFeedback(this)">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700" for="id_asunto">Asunto</label>
+      {{ form.asunto }}
+      {% if form.asunto.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.asunto.errors|striptags }}</p>
+      {% endif %}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700" for="id_email">Email</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.email.errors|striptags }}</p>
+      {% endif %}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700" for="id_mensaje">Mensaje</label>
+      {{ form.mensaje }}
+      {% if form.mensaje.errors %}
+        <p class="text-sm text-red-600 mt-1">{{ form.mensaje.errors|striptags }}</p>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center justify-between">
+      <button type="submit" class="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium">Enviar</button>
+      <a href="{% url 'main:inicio' %}" class="text-sm text-gray-600 hover:text-gray-800">Volver</a>
+    </div>
+  </form>
+
+  <div class="mt-4 text-xs text-gray-500">
+    Validaciones:
+    <ul class="list-disc list-inside">
+      <li>Front-end: `required`, `minlength` y validación JS `validateFeedback`.</li>
+      <li>Back-end: `min_length`, `EmailField`, `clean_*` en `FeedbackForm`.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
