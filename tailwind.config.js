@@ -5,7 +5,9 @@ module.exports = {
     "./templates/**/*.html",
     "./static/**/*.js",
     "./**/*.py",
+    "./**/*.html",
   ],
+  safelist: ["min-h-screen", "flex", "bg-gray-50", "h-full"],
   theme: {
     extend: {
       colors: {

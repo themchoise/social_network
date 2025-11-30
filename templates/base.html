@@ -5,23 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Red Social IFTS{% endblock %}</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: "#eff6ff",
-                500: "#3b82f6",
-                600: "#2563eb",
-                700: "#1d4ed8",
-              },
-            },
-          },
-        },
-      };
-    </script>
+    {# Tailwind compilado localmente: se retiró CDN #}
 
     {% load static %}
     <link href="{% static 'css/output.css' %}" rel="stylesheet" />
@@ -38,15 +22,40 @@
     <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js"></script>
     {# TODO: Remover CDN Tailwind cuando output.css incluya todas las clases personalizadas (bg-primary-600, etc.) #}
 
+    <script>
+      // Guard anti-fade temprano: evita que se establezca opacity:0 global
+      (function(){
+        const originalSetAttribute = Element.prototype.setAttribute;
+        Element.prototype.setAttribute = function(name, value){
+          if(name === 'style' && /opacity:\s*0(?!\d)/.test(value)) {
+            console.warn('[guard] Bloqueado setAttribute style con opacity:0 en', this.tagName);
+            value = value.replace(/opacity:\s*0(?!\d)/g,'opacity:1 !important');
+          }
+          return originalSetAttribute.call(this, name, value);
+        };
+        const originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
+        CSSStyleDeclaration.prototype.setProperty = function(prop, val, priority){
+          if(prop === 'opacity' && /^0(\.\d+)?$/.test(val)) {
+            console.warn('[guard] Bloqueado setProperty opacity=0, forzando 1');
+            return originalSetProperty.call(this, prop, '1', 'important');
+          }
+          return originalSetProperty.call(this, prop, val, priority);
+        };
+        // Refuerzo inicial inmediato
+        document.documentElement.style.opacity = '1';
+        document.documentElement.style.transition = 'none';
+      })();
+    </script>
+
     {% block extra_css %}{% endblock %}
   </head>
-  <body class="h-full overflow-hidden">
+  <body class="min-h-screen">
     {% include 'components/toast.html' %}
     {% if user.is_authenticated %}
       {% include 'components/navbar.html' %}
     {% endif %}
 
-    <div class="flex h-[calc(100vh-4rem)]">
+    <div class="flex min-h-screen">
       {% if user.is_authenticated %}
         {% include 'components/sidebar.html' %}
       {% endif %}
@@ -56,13 +65,17 @@
             <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
               {% block breadcrumbs %}{% endblock %}
               {% if messages %}
-                {% for message in messages %}
-                  <div
-                    class="mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-700 border border-yellow-200{% elif message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}"
-                  >
-                    {{ message }}
-                  </div>
-                {% endfor %}
+                <div id="flash-messages">
+                  {% for message in messages %}
+                    <div
+                      class="flash-message mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-700 border border-yellow-200{% elif message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}"
+                      role="alert"
+                      data-message-tag="{{ message.tags }}"
+                    >
+                      {{ message }}
+                    </div>
+                  {% endfor %}
+                </div>
               {% endif %}
               {% block content %}{% endblock %}
             </div>
