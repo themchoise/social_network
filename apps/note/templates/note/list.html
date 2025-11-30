@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Notas{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-xl font-semibold">Notas</h1>
+  <a href="{% url 'note:create' %}" class="text-sm text-indigo-600 font-medium">Crear nota →</a>
+</div>
+<form method="get" class="mb-4 flex gap-2">
+  <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar título..." class="flex-1 rounded-md border-gray-300" />
+  <select name="type" class="rounded-md border-gray-300">
+    <option value="">Tipo</option>
+    <option value="class">Clase</option>
+    <option value="summary">Resumen</option>
+    <option value="exercise">Ejercicio</option>
+  </select>
+  <button class="px-3 py-2 bg-indigo-600 text-white rounded-md text-sm">Filtrar</button>
+</form>
+{% if notes %}
+  <ul class="space-y-3">
+    {% for note in notes %}
+      <li class="bg-white border border-gray-200 rounded p-4 hover:shadow-sm">
+        <a href="{% url 'note:detail' note.pk %}" class="font-medium text-indigo-700">{{ note.title }}</a>
+        <p class="text-xs text-gray-500 mt-1">{{ note.subject.name }} · {{ note.get_absolute_url }}</p>
+        <p class="text-sm text-gray-600 mt-2">{{ note.content|truncatechars:120 }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="p-4 bg-blue-50 border border-blue-200 rounded text-sm">No hay notas.</div>
+{% endif %}
+{% endblock %}

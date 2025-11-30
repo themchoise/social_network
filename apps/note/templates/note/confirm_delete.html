@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar Nota{% endblock %}
+{% block content %}
+<div class="max-w-md">
+  <h1 class="text-lg font-semibold mb-4">Eliminar Nota</h1>
+  <p class="text-sm text-gray-600 mb-4">¿Seguro que querés eliminar "{{ object.title }}"? Esta acción es irreversible.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="flex gap-3 text-sm">
+      <a href="{% url 'note:detail' object.pk %}" class="text-gray-600">Cancelar</a>
+      <button type="submit" class="px-3 py-2 rounded-md bg-red-600 text-white">Eliminar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}Editar Nota{% else %}Crear Nota{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">{% if form.instance.pk %}Editar Nota{% else %}Crear Nota{% endif %}</h1>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="space-y-4">
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>{% endif %}
+          {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="mt-6 flex gap-3">
+      <a href="{% url 'note:list' %}" class="text-sm text-gray-600">Cancelar</a>
+      <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ note.title }}{% endblock %}
+{% block content %}
+<article class="max-w-2xl">
+  <h1 class="text-2xl font-semibold mb-2">{{ note.title }}</h1>
+  <p class="text-sm text-gray-500 mb-4">{{ note.author.username }} · {{ note.created_at|date:'d/m/Y H:i' }}</p>
+  <div class="prose prose-sm max-w-none mb-4">{{ note.content|linebreaks }}</div>
+  {% if note.file_attachment %}
+    <a href="{{ note.file_attachment.url }}" class="text-sm text-indigo-600" download>Descargar adjunto</a>
+  {% endif %}
+  <div class="mt-6 flex gap-3 text-sm">
+    <a href="{% url 'note:edit' note.pk %}" class="text-indigo-600">Editar</a>
+    <a href="{% url 'note:delete' note.pk %}" class="text-red-600">Eliminar</a>
+    <a href="{% url 'note:list' %}" class="text-gray-600">Volver</a>
+  </div>
+</article>
+{% endblock %}
