@@ -66,7 +66,7 @@ class LogoutView(LoginRequiredMixin, View):
 
 class ProfileView(LoginRequiredMixin, DetailView):
     model = User
-    template_name = 'auth/profile.html'
+    template_name = 'user/profile.html'
     context_object_name = 'profile_user'
     slug_field = 'username'
     slug_url_kwarg = 'username'
