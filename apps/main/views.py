@@ -16,7 +16,10 @@ from apps.main.forms import FeedbackForm
 
 class InicioRedirectView(View):
     def get(self, request, *args, **kwargs):
-        return redirect('/post/')
+        return redirect('/main/')
+
+class MainView(TemplateView):
+    template_name = 'main/inicio.html'
 
 
 class TimelineRedirectView(View):
@@ -89,7 +92,7 @@ class ApiUsuariosView(View):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-# ===== GAMIFICACIÓN (vistas API basadas en clases) =====
+# ===== GAMIFICACIN N=====
 
 
 class AwardPointsView(LoginRequiredMixin, View):

@@ -19,6 +19,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # Third party
+    'debug_toolbar',
+    
+    # Apps
     'apps.user',
     'apps.career',
     'apps.subject',
@@ -42,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'socialnetwork_project.error_handlers.TemplateErrorHandlerMiddleware',
     'socialnetwork_project.error_handlers.ErrorHandlerMiddleware',
 ]
@@ -179,3 +184,9 @@ LOGGING = {
         },
     },
 }
+
+# Django Debug Toolbar
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]

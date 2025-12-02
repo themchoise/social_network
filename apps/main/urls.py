@@ -4,7 +4,7 @@ from . import views
 app_name = 'main'
 
 urlpatterns = [
-    path('main/', views.InicioRedirectView.as_view(), name='inicio'),
+    path('main/', views.MainView.as_view(), name='inicio'),
     path('usuarios/', views.UsuariosListView.as_view(), name='lista_usuarios'),
     path('carreras/', views.CarrerasListView.as_view(), name='lista_carreras'),
     path('api/usuarios/', views.ApiUsuariosView.as_view(), name='api_usuarios'),
