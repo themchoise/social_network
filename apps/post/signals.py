@@ -1,10 +1,10 @@
 """
-Signals para gamificación automática.
-Se ejecutan automáticamente cuando se crean modelos.
+Signals for automatic gamification.
+Executed automatically when models are created.
 
-Para usar:
-1. Crear este archivo en apps/post/signals.py
-2. Importar en apps/post/apps.py en el método ready()
+Usage:
+1. Create this file at apps/post/signals.py
+2. Import in apps/post/apps.py in the ready() method
 """
 
 from django.db.models.signals import post_save
@@ -17,7 +17,7 @@ from apps.main.services.gamification_service import GamificationService
 
 @receiver(post_save, sender=Post)
 def award_points_for_post(sender, instance, created, **kwargs):
-    """Otorga puntos cuando se crea un post"""
+    """Awards points when a post is created."""
     if created and instance.author:
         result = GamificationService.award_points(
             user=instance.author,
@@ -30,12 +30,12 @@ def award_points_for_post(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def award_points_for_comment(sender, instance, created, **kwargs):
-    """Otorga puntos cuando se crea un comentario"""
+    """Awards points when a comment is created."""
     if created and instance.author:
         result = GamificationService.award_points(
             user=instance.author,
             source='comment',
-            description=f'Comentario creado en post de {instance.post.author.username}'
+            description=f'Comment created in post by {instance.post.author.username}'
         )
         
         GamificationService.check_achievements(instance.author)
@@ -43,7 +43,7 @@ def award_points_for_comment(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Like)
 def award_points_for_like(sender, instance, created, **kwargs):
-    """Otorga puntos al autor cuando recibe un like"""
+    """Awards points to the author when they receive a like."""
     if created:
         content_object = instance.content_object
         

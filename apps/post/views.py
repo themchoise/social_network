@@ -19,10 +19,10 @@ def is_ajax(request):
 
 
 def get_comments_data(post, current_user):
-    comentarios = post.comments.select_related('author').order_by('-created_at')
-    comentarios_data = []
-    for comment in comentarios:
-        comentarios_data.append({
+    comments = post.comments.select_related('author').order_by('-created_at')
+    comments_data = []
+    for comment in comments:
+        comments_data.append({
             'id': comment.id,
             'author': comment.author.get_full_name_or_username(),
             'author_initial': comment.author.get_full_name_or_username()[0].upper(),
@@ -33,7 +33,7 @@ def get_comments_data(post, current_user):
             'image_url': comment.image.url if comment.image else None,
             'is_author': comment.author == current_user
         })
-    return comentarios_data
+    return comments_data
 
 
 class TimelineView(LoginRequiredMixin, ListView):
@@ -111,12 +111,12 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             return render(request, 'errors/403.html', status=403)
 
         self.object.increment_views()
-        comentarios = self.object.comments.select_related('author').order_by('-created_at')
-        contexto = {
+        comments = self.object.comments.select_related('author').order_by('-created_at')
+        context = {
             'post': self.object,
-            'comentarios': comentarios,
+            'comments': comments,
         }
-        return render(request, self.template_name, contexto)
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -124,7 +124,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             content = request.POST.get('content', '').strip()
             if not content:
                 if is_ajax(request):
-                    return JsonResponse({'success': False, 'error': 'El comentario no puede estar vacío'}, status=400)
+                    return JsonResponse({'success': False, 'error': 'Comment cannot be empty'}, status=400)
 
             from apps.comment.models import Comment
 
@@ -138,7 +138,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
                 gamification_result = GamificationService.award_points(
                     user=request.user,
                     source='comment',
-                    description=f'Comentario creado en post de {self.object.author.username}'
+                    description=f'Comment created in post by {self.object.author.username}'
                 )
             except Exception:
                 gamification_result = {}
@@ -222,8 +222,8 @@ class GetCommentsView(LoginRequiredMixin, View):
             post = get_object_or_404(Post, id=post_id)
             if not post.can_view(request.user):
                 return JsonResponse({'success': False, 'error': 'No tienes permiso para ver este post'}, status=403)
-            comentarios_data = get_comments_data(post, request.user)
-            return JsonResponse({'success': True, 'count': len(comentarios_data), 'comments': comentarios_data})
+            comments_data = get_comments_data(post, request.user)
+            return JsonResponse({'success': True, 'count': len(comments_data), 'comments': comments_data})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
 

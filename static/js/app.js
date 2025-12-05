@@ -231,19 +231,19 @@ window.toggleMobileSidebar = function () {
   sidebar.classList.toggle("hidden");
 };
 
-// Validación rápida para feedback (no-model form)
+// Quick validation for feedback (non-model form)
 window.validateFeedback = function (form) {
   const msg = form.querySelector('[name="mensaje"]');
   if (msg && msg.value.trim().length < 10) {
-    showNotification("El mensaje debe tener al menos 10 caracteres", "warning");
+    showNotification("Message must be at least 10 characters", "warning");
     return false;
   }
   return true;
 };
 
-// Cerrar dropdowns al hacer click fuera
+// Close dropdowns when clicking outside
 document.addEventListener("click", function (event) {
-  // Cerrar user menu
+  // Close user menu
   const userButton = document.getElementById("user-menu-button");
   const userMenu = document.getElementById("user-menu");
 

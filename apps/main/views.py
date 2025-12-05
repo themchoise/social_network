@@ -44,19 +44,19 @@ class FeedbackView(LoginRequiredMixin, FormView):
     success_url = '/'
 
     def form_valid(self, form):
-        # Aquí podríamos enviar email o guardar en DB
-        messages.success(self.request, 'Gracias por tu feedback, ¡lo recibimos!')
+        # Here we could send email or save to database
+        messages.success(self.request, 'Thank you for your feedback, we received it!')
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Por favor corregí los errores del formulario.')
+        messages.error(self.request, 'Please correct the form errors.')
         return super().form_invalid(form)
 
 
-class UsuariosListView(ListView):
+class UsersListView(ListView):
     model = User
-    template_name = 'main/lista_usuarios.html'
-    context_object_name = 'usuarios'
+    template_name = 'main/users_list.html'
+    context_object_name = 'users'
 
     def get_queryset(self):
         return User.objects.select_related('career').all()

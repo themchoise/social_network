@@ -95,16 +95,16 @@ class GamificationModal {
   }
   getSourceDescription(source) {
     const descriptions = {
-      post: "¡Nuevo post creado!",
-      comment: "¡Nuevo comentario!",
-      like_received: "¡Te dieron un like!",
-      note_shared: "¡Nota compartida!",
-      achievement: "¡Logro desbloqueado!",
-      login_streak: "¡Streak activo!",
-      help_others: "¡Ayudaste a otros!",
-      admin_bonus: "¡Bonificación del admin!",
+      post: "New post created!",
+      comment: "New comment!",
+      like_received: "You received a like!",
+      note_shared: "Note shared!",
+      achievement: "Achievement unlocked!",
+      login_streak: "Active streak!",
+      help_others: "You helped others!",
+      admin_bonus: "Admin bonus!",
     };
-    return descriptions[source] || "Puntos obtenidos";
+    return descriptions[source] || "Points earned";
   }
   createConfetti() {
     const confettiPieces = 30;
@@ -234,7 +234,7 @@ class Leaderboard {
       console.error("Error loading leaderboard:", e);
       if (this.container) {
         this.container.innerHTML =
-          '<p class="error">Error al cargar el ranking</p>';
+          '<p class="error">Error loading leaderboard</p>';
       }
     }
   }

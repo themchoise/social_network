@@ -71,7 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'socialnetwork_project.wsgi.application'
 
-# Configuración de base de datos
+# Database configuration
 DATABASE_URL = config('DATABASE_URL', default='')
 
 if DATABASE_URL:
